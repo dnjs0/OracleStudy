@@ -297,7 +297,85 @@ select * from tblProject;
     
     SELECT * FROM A (LEFT|RIGHT) OUTER JOIN B ON A.PK = B.FK;
 
+
+    4. 셀프 조인 , self join
+    - 1개의 테이블을 사용하는 조인
+    - 테이블이 자기 자신과 관계를 맺는 경우
+    
+    
+    
+    
 */
+
+--<4.셀프조인>
+--직원 테이블
+create table tblself(
+    seq number primary key,                 --직원 번호(PK)
+    name varchar2(30) not null,             --직원명
+    department varchar2(30) not null,       --부서명
+    super number references tblself(seq) null    -- 상사번호(FK)
+);
+
+insert into tblSelf values (1,'홍사장','사장실',null);
+insert into tblSelf values(2,'김부장','영업부',1);
+insert into tblSelf values(3,'박과장','영업부',3);
+insert into tblSelf values(4,'최대리','영업부',3);
+insert into tblSelf values(5,'정사원','영업부',4);
+insert into tblSelf values(6,'이부장','개발부',1);
+insert into tblSelf values(7,'하과장','개발부',6);
+insert into tblSelf values(8,'신과장','개발부',6);
+insert into tblSelf values(9,'황대리','개발부',7);
+insert into tblSelf values(10,'하사원','개발부',9);
+
+select * from tblSelf;
+
+-- 직원 명단을 가져오시오. 단, 상사명까지
+-- 1. join
+-- 2. subquery
+-- 3. 계층형 쿼리(오라클 전용)
+
+--1. join
+select 
+    e.name as 직원명,
+    e.department as 부서명,
+    s.name as 상사명
+from tblSelf e --직원(자식)
+    LEFT outer join tblSelf s --상사(부모)
+       on s.seq = e.super;
+-- 직원으로서의 홍사장이 누락되었으므로 left outer조인
+
+
+
+-- 2. subquery
+select
+    department as 부서명,
+    (select name from tblSelf s2 where seq = s1.super) as 상사명
+from tblSelf s1; --직원(자식역할)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --대여 기ㄴ록이 있는 회원의 이름과 연락처?
 select

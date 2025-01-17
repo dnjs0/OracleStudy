@@ -1,8 +1,10 @@
 -- subquery
 
+select * from tabs; 
 
 -- 1. employees. 'Munich' 도시에 위치한 부서에 소속된 직원들 명단?
-
+select * from employees;
+select * from departments;
 
 -- 2. tblMan. tblWoman. 서로 짝이 있는 사람 중 남자와 여자의 정보를 모두 가져오시오.
 --    [남자]        [남자키]   [남자몸무게]     [여자]    [여자키]   [여자몸무게]
