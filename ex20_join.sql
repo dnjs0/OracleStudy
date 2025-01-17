@@ -257,12 +257,320 @@ insert into tblProject(seq,project,staff_seq)
 select * from tblStaff;
 select * from tblProject;
 
+/*
+    
+    조인, Join
+    - (서로 관계를 맺은) 2개(1개) 이상의 테이블을 1개의 결과셋으로 만드는 기술
+    - 태이블 합치기
+    
+    조인 종류
+    1. 단순 조인, cross join
+    2. 내부 조인, inner join
+    3. 외부 조인, outer join
+    4. 셀프 조인, self join
+    5. 전체 외부 조인, full outer join
+    
+    1. 단순 조인 cross join, 카티션 곱, 데카르트 곱
+    - 사용 안함 > 가치가 있는 행과 가치가 없는 행이 뒤섞여 있다.
+    - 모든 조인의 기본 동작
+    - A 테이블 X B 테이블
+    - 다량의 더미 생성용 or 테스트용
+    
+    
+    SELECT * FROM A CROSS JOIN B;   --ANSI 문법(*추천)
+    SELECT * FROM A,B;              --ORACLE 전용 문법
+    
+    
+    2. 내부 조인, inner join
+    - 단순 조인에서 유효한 레코드만 추출한 조인
+    
+    SELECT * FROM A INNER JOIN B ON A.PK = B.FK;
+    
+    
+    3.외부조인,outer join
+    - 내부조인의 반댓말(X)
+    - 내부조인의 결과 셋 + a(내부 조인에는 포함되지 않는 부모 테이블의 나머지 레코드)
+    - 자식테이블을 가르키는 경우 거의 내부조인과 같음
+    - 주로 부모 테이블을 가리키도록 외부조인을 사용
+    
+    SELECT * FROM A INNER JOIN B ON A.PK = B.FK;
+    
+    SELECT * FROM A (LEFT|RIGHT) OUTER JOIN B ON A.PK = B.FK;
+
+*/
+
+--대여 기ㄴ록이 있는 회원의 이름과 연락처?
+select
+    distinct m.name, m.tel
+from tblMember m
+    inner join tblRent r
+        on m.seq = r.member;
+
+
+--대여 기ㄴ록이 있는 회원의 이름과 연락처? +대여 횟수?
+-- 1. 서브쿼리 
+    -- 누가 메인이 될지 ㅇ정해야한다.
+    select 
+        tblMember.*,
+        (select count(*) from tblRent where member=tblMember.seq)
+    from tblMember
+       where (select count(*) from tblRent where member = tblMember.seq) > 0;
+
+select * from tblMember;    
+select * from tblRent;
+
+-- 2. 그룹바이
+select
+    m.seq, count(*)
+from tblMember m
+    inner join tblRent r
+        on m.seq = r.member
+            group by m.seq;
+
+
+--2-1 이름도 넣어야함, 서브쿼리
+select
+    m.seq,(select name from tblMember where seq = m.seq),
+    (select tel from tblMember where seq = m.seq),count(*)
+from tblMember m
+    inner join tblRent r
+        on m.seq = r.member
+            group by m.seq;
+
+
+--2-2 조건에 넣기, 아무때나 쓸수는 없지만 지금은 ok
+select
+    m.seq,m.name, m.tel, count(*)
+from tblMember m
+    inner join tblRent r
+        on m.seq = r.member
+            group by m.seq, m.name, m.tel;
+
+
+
+
+
+-- <전체 외부 조인>
+select 
+    *
+from tblMen m
+    full outer join tblWomen w
+        on m.couple = w.name
+            order by m.couple, w.couple;
+
+
+
+
+--<3. 외부조인>
+select * from tblCustomer;-- 3명
+select * from tblSales; --9건
+
+insert into tblcustomer values(4, '호호호','010-1234-5568','서울시');
+insert into tblcustomer values(5, '후후후','010-1234-5568','서울시');
+
+select * from tblCustomer;-- 5명
+
+select * from tblCustomer c
+    inner join tblSales s
+        on c.seq = s.cseq;  --9 내부조인
+        
+select * from tblCustomer c
+    left outer join tblSales s
+        on c.seq=s.cseq;    --11 부모테이블을 가르키게 > 사용
+
+select * from tblCustomer c
+    right outer join tblSales s
+        on c.seq=s.cseq;    --9 자식테이블을 가리키게 > 의미XX = 내부조인
 
 
 
 
 
 
+
+
+select * from tblStaff;
+select * from tblProject;
+
+insert into tblStaff values(6, '호호호',250,'서울시');
+
+-- 직원 명당 > 단, 프로젝트 담당자로 되어있는 직원만
+select * from tblStaff s
+    inner join tblProject p
+        on s.seq = p.staff_seq; ---호호호?
+        
+-- 직원 명단 > 프로젝트 담당 유무 무관 > 모든 명당 ~ + 담당프로젝트 정보까지
+--outer join사용
+select * from tblStaff s
+    left outer join tblProject p
+        on s.seq = p.staff_seq;
+
+
+
+
+
+
+
+
+
+
+select * from tblMen;
+select * from tblWomen;
+
+--ㅋㅓ플 목록을 가져오시오.
+--inner join
+select 
+    *
+from tblMen m
+    inner join tblWomen w
+        on m.couple = w.name;
+
+--ㅋㅓ플 목록을 가져오시오. +  남자 솔로 목록도 같이
+-- outer join
+select 
+    *
+from tblMen m
+    left outer join tblWomen w
+        on m.couple = w.name;
+
+
+--ㅋㅓ플 목록을 가져오시오. +  여자 솔로 목록도 같이
+-- outer join
+select 
+    *
+from tblMen m
+    right outer join tblWomen w
+        on m.couple = w.name;
+
+
+
+
+
+
+
+
+-- <2.내부조인>
+--employees > 7개
+select
+    e.first_name||e.last_name as 직원명,
+    d.department_name as 부서명,
+    l.city as 도시명,
+    c.country_name as 국가명,
+    r.region_name as 대륙명,
+    j.job_title as 직업명
+from  employees e
+    inner join departments d
+        on e.department_id = d.department_id
+            inner join locations l
+                on d.location_id = l.location_id
+                    inner join countries c
+                        on l.country_id = c.country_id
+                            inner join regions r
+                                on c.region_id = r.region_id
+                                    inner join jobs j
+                                        on e.job_id = j.job_id;
+
+--비디오 + 장르 + 대여 + 회원
+select
+    m.name as 누가,
+    v.name as 무엇을,
+    r.rentdate as 언제,
+    g.price as 얼마
+from tblGenre g
+ inner join tblVideo v
+    on g.seq = v.genre
+        inner join tblRent r
+            on r.video = v.seq
+                inner join tblMember m
+                    on m.seq = r.member;
+
+
+
+
+
+--비디오 + 장르 + 대여
+select
+*
+from tblGenre g
+ inner join tblVideo v
+    on g.seq = v.genre
+        inner join tblRent r
+            on r.video = v.seq;
+
+
+
+--비디오 + 장르
+select
+*
+from tblGenre g
+ inner join tblVideo v
+    on g.seq = v.genre;
+
+-- 두테이블을 같이 보고싶다! 할때 inner join 쓰기 
+-- 직원 명단과 담당 프로젝트
+select * from tblStaff inner join tblProject on tblStaff.seq = tblProject.staff_seq;
+
+
+select * from tblCustomer 
+    inner join tblSales 
+        on tblcustomer.seq = tblSales.cseq;
+
+select * from tblSales
+    inner join tblCustomer
+        on tblcustomer.seq = tblSales.cseq;
+
+select 
+    tblCustomer.seq as 고객번호,
+    tblCustomer.name as 고객명,
+    tblSales.seq as 판매번호,
+    item as 상품명
+from tblCustomer
+    inner join tblSales
+        on tblcustomer.seq = tblSales.cseq;
+
+-- 테이블 별칭
+select 
+    c.seq as 고객번호,
+    c.name as 고객명,
+    s.seq as 판매번호,
+    item as 상품명
+from tblCustomer c
+    inner join tblSales s
+        on c.seq = s.cseq;
+        
+        
+        
+-- 고객+ 판매
+-- 어떤 고객(c.name)이 어떤 물건(s.item)을 몇개(s.qty) 사갔습니까?
+-- 1. 조인
+select
+    c.name as 고객명,
+    s.item as 물품,
+    s.qty as 수량
+from tblCustomer c
+    inner join tblSales s
+        on c.seq = s.cseq
+            order by 고객명;
+
+
+-- 2. 서브쿼리
+-- 메인 쿼리를 어떤 테이블로?
+-- 서브쿼리를 어떤 테이블로?
+-- 메인쿼리(자식테이블) + 서브쿼리(부모테이블)
+select 
+    item,qty,
+    (select name from tblCustomer where seq=cseq)
+from tblSales;
+
+
+
+
+--- <1.>
+select * from tblCustomer;  -- 3명
+select * from tblSales;     -- 9명
+
+select * from tblcustomer cross join tblSales;
+--27개 걍 곱하고 붙여서 나옴 > 쓰레기 데이터 너무 많음
 
 
 
