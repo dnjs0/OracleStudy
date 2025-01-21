@@ -17,23 +17,23 @@
 show user;
 
 -- 계정 생성 하기(관리자만 가능)
-create user C##hong0 identified by java1234;
+create user c##project identified by java1234;
 
 --oracle c## 제거 방법 > alter로 시작하는거 복사
 alter session set "_ORACLE_SCRIPT"=true;
 
 --c## 안적어도 생성 됨
-create user dog identified by java1234;
+create user project identified by java1234;
 
 -- hong0 삭제
-drop user c##hong0;
+drop user c##project;
 
 -- homg 계정 생성
 create user hong identified by java1234;
 
 
 
-grant connect to hr;
+grant connect to project;
 
 show user;
 

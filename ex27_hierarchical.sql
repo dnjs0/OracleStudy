@@ -50,6 +50,16 @@ from tblComputer
 
 
 
+select * from tblSelf;
+
+select
+    lpad(' ', (level - 1) * 2) || name as "직원명"
+from tblSelf
+    start with super is null
+        connect by prior seq = super;
+
+
+
 
 
 
