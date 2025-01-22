@@ -35,6 +35,10 @@ create user hong identified by java1234;
 
 grant connect to project;
 
+--권한부여하기
+grant connect, resource, dba to project;
+grant create table to project;
+
 show user;
 
 -- hr 계정 생성하기
@@ -51,6 +55,8 @@ alter user hr identified by java1234;
 
 -- 샘플 데이터
 select * from employees;
+
+
 
 
 

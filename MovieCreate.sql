@@ -43,12 +43,12 @@ CREATE TABLE tblMovieActor (
     character     VARCHAR2(50),        -- 배역명
     seqM          NUMBER,              -- 외래키로 참조할 영화 번호
     seqActor      NUMBER,              -- 외래키로 참조할 배우 번호
-    CONSTRAINT fk_seqM FOREIGN KEY (seqM) REFERENCES tblMovie(seqM),  -- tblMovie 테이블의 seqM을 참조
+    CONSTRAINT fk_seqM_actor FOREIGN KEY (seqM) REFERENCES tblMovie(seqM),  -- tblMovie 테이블의 seqM을 참조
     CONSTRAINT fk_seqActor FOREIGN KEY (seqActor) REFERENCES tblActor(seqActor)  -- tblActor 테이블의 seqActor을 참조
 );
 
 select * from tblMovieActor;
-
+drop table tblMovieActor;
 
 CREATE TABLE tblMasterpiece(
     seqMasterpiece NUMBER PRIMARY KEY,  -- 대표작번호PK)
