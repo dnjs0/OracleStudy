@@ -177,7 +177,7 @@ end;
 
 select * from tblInsa;
 select * from tblTodo;
-
+select * from tblBonus;
 
 -- tblInsa > 성과급을 받는 직원 내역
 create table tblBouns(
@@ -593,6 +593,496 @@ end;
 /
 
 select * from tblCountry;
+
+
+
+/*
+
+    PL/SQL
+    - 프로시저(declare, begin, exception, end)
+    - 자료형 참조(%type, %rowtype)
+    - 제어문(if, case)
+    
+    
+    반복문
+    1. loop
+    - 기본형
+    - 단순 반복(무한)
+    - 탈출 > exit when 조건
+        
+    2. for loop
+    - 1번 기반 > 확장
+    
+    3. while loop
+    - 1번 기반 > 확장
+    
+    
+*/
+
+set serveroutput on;
+
+begin
+    loop
+        dbms_output.put_line('구현부 '||to_char(sysdate, 'hh24-mi-ss'));
+        
+    end loop; 
+
+end;
+/
+
+
+declare
+    vnum number := 1; --루프변수
+begin
+
+    loop
+        dbms_output.put_line(vnum);
+        vnum := vnum + 1;
+        
+        exit when vnum > 10;
+        
+        
+    end loop;
+
+end;
+/
+
+
+create table tblloop(
+    seq number primary key,
+    data varchar2(100) not null
+);
+
+create sequence seqLoop2;
+drop sequence seqLoop;
+
+-- tblLoop > 데이터 > 항목001, 항목002, 항목003,,, 항목999
+declare
+    vnum number := 1;
+begin
+    loop
+        --dbms_output.put_line(lpad(vnum,3,'0'));
+        --vnum := vnum+1;
+        
+        insert into tblLoop
+            values(seqLoop2.nextVal, '항목' || lpad(vnum,3,'0'));
+        vnum:= vnum +1;
+        exit when vnum > 999;
+    end loop;
+end;
+/
+
+select * from tblloop;
+
+drop table tblloop;
+
+
+
+
+/*
+
+    2. for loop
+    for(int n : list){
+    
+    }
+    
+    
+    for(int n in list){
+    
+    }
+
+*/
+
+begin
+
+    for i in 1.. 10 loop
+        dbms_output.put_line(i);
+    end loop;
+    
+end;
+/
+
+-- 구구단, 복합키 사용
+-- 복합키(Composite key) : 컬럼 수준 정의 불가, 테이블 수준 or 외부 선언 가능
+create table tblGugudan(
+    dan number not null,
+    num number not null,
+    result number not null,
+    constraint tblgugudan_dan_num_pk primary key(dan, num)
+);
+
+insert into tblGugudan values (1,1,1);
+insert into tblGugudan values (1,2,2);
+insert into tblGugudan values (1,3,3);
+insert into tblGugudan values (3,1,3);
+
+delete from tblGugudan;
+
+begin
+
+    for i in 2..9 loop
+        for j in 1..9 loop
+            insert into tblGugudan(dan, num, result)
+                values(i, j, i*j);
+        end loop;
+    end loop;
+
+end;
+/
+
+select * from tblGugudan order by dan, num;
+
+
+-- 복합키 > 관계 맺기
+-- 학생 + 성적
+create table tblStudent(
+    name varchar2(30) not null,
+    subject varchar2(30) not null,
+    tel varchar2(15) not null,
+    constraint tblStudent_name_subject_pk primary key(name, subject)
+);
+
+insert into tblStudent (name, subject, tel)
+    values('홍길동','자바','010-1234-5678');
+    
+insert into tblStudent (name, subject, tel)
+    values('홍길동','오라클','010-1234-5678');    
+    
+insert into tblStudent (name, subject, tel)
+    values('홍길동','html','010-1234-5678');
+    
+insert into tblStudent (name, subject, tel)
+    values('아무개','자바','010-2345-6789');
+
+insert into tblStudent (name, subject, tel)
+    values('아무개','Css','010-2345-6789');
+
+select * from tblStudent;
+
+
+create table tblScore(
+    score number not null,
+    name varchar2(30) not null,     --FK
+    subject varchar2(30) not null,  --FK
+    constraint tblscore_name_subject_fk
+        foreign key(name, subject) references tblStudent(name, subject),
+    constraint tblscore_name_subject_pk
+        primary key(name, subject) 
+);
+
+
+insert into tblScore(score, name, subject) values (100,'홍길동','자바');
+insert into tblScore(score, name, subject) values (90,'홍길동','오라클');
+insert into tblScore(score, name, subject) values (80,'홍길동','html');
+
+insert into tblScore(score, name, subject) values (97,'아무개','자바');
+insert into tblScore(score, name, subject) values (75,'아무개','Css');
+
+
+select * from tblScore;
+
+--join
+select 
+    st.name as 학생명,
+    st.subject 과목명,
+    sc.score as 점수
+from tblStudent st
+    inner join tblscore sc
+        on st.name = sc.name and st.subject = sc.subject;
+
+
+begin
+    for i in reverse 1..10 loop
+        dbms_output.put_line(i);
+    end loop;
+end;
+/
+
+/*
+
+    3. while loop
+
+*/
+declare
+    vnum number := 1;
+begin
+    while vnum <= 10 loop
+        dbms_output.put_line(vnum);
+        vnum := vnum +1;
+    end loop;
+end;
+/
+
+-- select into 절의 결과값이 없으면 에러 발생!!!
+declare
+    vnum number := 1002;
+    vname tblInsa.name%type;
+    vbasicpay tblInsa.basicpay%type;
+    vcnt number;
+begin
+
+    select count(*) into vcnt from tblInsa where num = vnum;
+
+    if vcnt > 0 then
+        select name, basicpay into vname, vbasicpay from tblInsa where num = vnum;
+    
+    dbms_output.put_line(vname);
+    dbms_output.put_line(vbasicpay);
+    end if;
+end;
+/
+
+
+
+
+-- 루프 언제 사용?
+-- 1. 반복 업무
+-- 2. select > 결과셋에 레코드가 N개 > 탐색
+
+
+/*
+
+    select > 결과셋 > Pl/SQL 변수에 대입
+    
+    1. select into
+    - 결과셋의 레코드가 1개일때만 사용이 가능하다. PK일때 사용하자
+    - 2개이상일 경우 에러가 난다.
+    - 0개일 경우도 에러가 발생한다.
+    
+    2. cursor + 루프
+    - 결과셋의 레코드가 N개일때 사용이 가능하다.(0~이상)
+    
+    declare
+        변수 선언;
+        커서 선언; -- 결과셋 참조 객체
+    begin
+        커서 열기;
+            loop
+                커서 참조 > 레코드 접근
+                exit when 조건;
+            end loop;
+        커서 닫기;
+    end;
+
+*/
+
+-- tblInsa 직원들 이름을 가져오시오.(60명)
+declare
+    vname tblInsa.name%type;
+begin
+    select name into vname from tblInsa; --에러 인자값 많이 갖고오기때문이다.
+    dbms_output.put_line(vname);
+end;
+/
+
+
+declare
+    vname tblInsa.name%type;
+    
+    -- cursor 커서명 is select 문;
+    cursor vcursor
+    is
+    select name from tblInsa;
+begin
+    
+    -- 커서를 사용해서 > 결과셋 탐색
+    open vcursor; --커서 열기 > select 문 실행 > 결과셋을 생성한다. + 커서도 참조한다.
+    
+        -- fetch 커서 into 변수
+        -- select 컬럼 into 변수
+        /*
+        fetch vcursor into vname;
+        dbms_output.put_line(vname);
+        case 
+            when vcursor%notfound then dbms_output.put_line('데이터 없음');
+            else dbms_output.put_line('데이터 있음');
+        end case;
+        
+        fetch vcursor into vname;
+        dbms_output.put_line(vname);
+        case 
+            when vcursor%notfound then dbms_output.put_line('데이터 없음');
+            else dbms_output.put_line('데이터 있음');
+        end case;
+        
+        fetch vcursor into vname;
+        dbms_output.put_line(vname);case 
+            when vcursor%notfound then dbms_output.put_line('데이터 없음');
+            else dbms_output.put_line('데이터 있음');
+        end case;
+        
+        fetch vcursor into vname;
+        dbms_output.put_line(vname);
+        
+        -- dbms_output.put_line(vcursor%notfound); -->커서 속성
+        case 
+            when vcursor%notfound then dbms_output.put_line('데이터 없음');
+            else dbms_output.put_line('데이터 있음');
+        end case;
+    
+    */
+        
+        loop
+            fetch vcursor into vname;
+            exit when vcursor%notfound;
+            
+            dbms_output.put_line(vname);
+        close loop;
+    
+    close vcursor;
+end;
+/
+
+
+-- '기획부' > 이름, 직위, 급여 > 출력
+declare
+
+    cursor vcursor
+    is
+    select name, jikwi, basicpay from tblInsa where buseo = '기획부';
+    
+    vname       tblInsa.name%type;
+    vjikwi      tblInsa.jikwi%type;
+    vbasicpay   tblInsa.basicpay%type;
+    
+begin
+    
+    open vcursor;
+    loop
+        fetch vcursor into vname, vjikwi, vbasicpay;
+        exit when vcursor%notfound;
+        
+        -- 1회전 > 기획부 직원 1명
+        dbms_output.put_line(vname || ',' ||vjikwi||','||vbasicpay);
+        
+    end loop;
+    close vcursor;
+
+end;
+/
+
+
+
+
+-- 문제. tblBonus
+-- 1. 모든 직원에세 보너스 지금(60명 전원)
+-- 2. 과장/부장(급여 1.5배), 사원/대기(급여 2배)
+
+-- 어떤 select를 cursor로 정의할지?
+-- '기획부' > 이름, 직위, 급여 > 출력
+select * from tblBonus;
+delete from tblBonus;
+create sequence seqBonus;
+drop sequence seqBonus;
+
+declare
+
+    cursor vcursor
+    is
+    select num,jikwi, basicpay  from tblInsa;
+    
+    vnum        tblInsa.num%type;
+    vjikwi      tblInsa.jikwi%type;
+    vbasicpay   tblInsa.basicpay%type;
+    vbonus      number;
+
+begin
+    
+    open vcursor;
+    loop
+        fetch vcursor into  vnum, vjikwi, vbasicpay;
+        exit when vcursor%notfound;
+        
+        if vjikwi in ('과장', '부장') then
+            vbonus := vbasicpay *2;
+        elsif vjikwi in ('사원', '대리') then
+            vbonus := vbasicpay *1.5;
+        end if;
+        
+        insert into tblBonus(seq, num, bonus)
+                        values(seqBonus.nextVal, vnum, vbonus);  
+        
+    end loop;
+    close vcursor;
+
+end;
+/
+
+-- 커서영역
+-- 1. 커서(fetch) + loop > 기본형
+-- 2. 커서 + for loop > 간단한 버전
+
+-- 60명 직원 정보(모든 컬럼) 출력
+declare
+    cursor vcursor is select * from tblInsa;
+    vrow tblInsa%rowtype;
+begin
+    
+    open vcursor;
+    loop
+        fetch vcursor into vrow;
+        exit when vcursor%notfound;
+        
+        dbms_output.put_line(vrow.name ||','||vrow.buseo);
+    
+    end loop;
+    close vcursor;
+    
+end;
+/
+
+
+--간단 버전
+declare
+    cursor vcursor is select * from tblInsa;
+begin
+    
+    for vrow in vcursor loop
+        
+        dbms_output.put_line(vrow.name ||','||vrow.buseo);
+    
+    end loop;
+    
+end;
+/
+
+-- 예외 처리
+declare
+    vcnt number;
+    vname tblInsa.name%type;
+begin
+
+--    select count(*) into vcnt from tblInsa where buseo = '기2획부';
+--    dbms_output.put_line(100000000/vcnt);
+--    
+    
+    select name into vname from tblInsa where num = 1100;
+    dbms_output.put_line(vname);
+    
+    dbms_output.put_line('또 다른 업무');
+exception
+
+    when ZERO_DIVIDE then
+        dbms_output.put_line('0으로 나누기');
+    when no data found then
+        dbms_output.put_line('데이터가 없습니다.');
+    when others then
+        dbms_output.put_line('예외처리') ;
+
+end;
+/
+
+
+---------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
 
 
 
