@@ -1075,6 +1075,345 @@ end;
 
 ---------------------------------------------------------------------------------
 
+/*
+
+    프로시저
+    1. 익명 프로시저
+    2. 실명 프로시저
+
+    
+    저장 프로시저, Stored Procedure
+    1. 저장 프로시저, Stored Procedure
+        - 매개변수 / 반환값 > 구성 자유
+        
+    2. 저장 함수, Stored Function
+        - 매개변수 / 반환값 > 필수
+        
+    
+    익명 프로시저 선언
+    [DECLARE
+        변수 선언;
+        커서 선언;]
+    BEGIN
+        구현부;
+    [EXCEPTION
+        예외 처리;]
+    END;
+    
+    
+    
+    
+    
+    저장 프로시저 선언
+    
+    CREATE [OR REPLACE] PROCEDURE 프로시저명
+    IS(AS)
+    [   변수 선언;
+        커서 선언;]
+    BEGIN
+        구현부;
+    [EXCEPTION
+        예외 처리;]
+    END;
+
+*/
+
+create or replace procedure procTest
+is
+    vnum number;
+begin
+    vnum := 10;
+    dbms_output.put_line(vnum);
+end procTest;
+/
+
+
+-- 프로시저 호출 구문 = PL/SQL
+begin
+    procTest();
+end;
+/
+
+-- 표준 sql 영역에서 프로시저 호출하는 방법 > 자바와 연동할 때 사용
+execute proctest();
+execute procTest;
+exec procTest;
+call procTest();
+
+
+
+
+
+/*
+
+    SQL 명령어가 실행되는 전체 과정
+    1. 직접 sql을 실행하는 경우 > 표준 sql(~ex29) > 텍스트 sql
+    2. 익명 프로시저 실행
+    ----------------------------------------------------------------
+    3. 저장 프로시저 실행
+    
+    
+    1+2
+    a. SQL Developer > 구문을 작성한다.(코딩)
+    b. 영역을 선택한다 > ctrl + enter > 텍스트가 오라클 서버에게 전송한다 > SQL실행(X)
+    c. 오라클 서버가 b를 수신한다.
+    d. 수신한 SQL을 파싱한다. (구문을 쪼개고 분석한다. > 문법 검사)
+    e. sql을 컴파일한다(인터프리터, 실시간 번역) > 기계어
+    f. SQL을 실행한다.
+    g. 결과셋을 생성한다.(서버 메모리에)
+    h. 결과셋을 클라이언트에게 반환한다.
+    i. 반환받은 결과셋 > 화면에 출력한다.
+    
+    - 동일한 SQL 또 실행 > 동일한 비용 발생!!!!!!!!
+    
+    
+    
+    
+    
+    3.
+    a. SQL Developer > 프로시저 선언문(호출X)을 작성한다.(코딩)
+    b. 영역을 선택한다 > ctrl + enter > 텍스트가 오라클 서버에게 전송한다 > SQL실행(X)
+    c. 오라클 서버가 b를 수신한다.
+    d. 수신한 SQL을 파싱한다. (구문을 쪼개고 분석한다. > 문법 검사)
+    e. sql을 컴파일한다(인터프리터, 실시간 번역) > 기계어 -> 젤 비쌈
+    f. SQL을 실행한다.
+    g. 오라클 서버에 프로시저를 생성한다.(+저장)
+    h. 생성 완료 메시지를 클라이언트에게 반환한다.
+    
+    
+    a. SQL Developer > 프로시저 선언문을 작성한다.(코딩)
+    b. 영역을 선택한다 > ctrl + enter > 텍스트가 오라클 서버에게 전송한다 > SQL실행(X)
+    c. 오라클 서버가 b를 수신한다.
+    d. 수신한 SQL을 파싱한다. (구문을 쪼개고 분석한다. > 문법 검사)
+    e. sql을 컴파일한다(인터프리터, 실시간 번역) > 기계어
+    f. SQL을 실행한다.
+    g. 저장된 프로시저를 찾아서 호출한다(***) > 프로기저는 이미 컴파일 + 저장
+    h. 결과를 반환한다.
+    i.SQL Developer > 결과를 처리한다.
+    
+    - 동일한 구문 호출 > 컴파일이 된 프로시저 사용
+        1. 생산 비용 + 컴파일(저장) > 고가
+        2. 사용 비용 > 저렴 > 반복(*****)
+    - 저장된 객체 > 관리 비용 발생 > 사람이 관리하는 비용 발생(권한, 네이밍 ..)
+                                    > 유지 보수 난이도 높음
+
+*/
+
+select * from tblInsa;
+
+
+-- 저장 프로시저 > 매개변수 or 반환값
+
+-- 1. 매개변수가 있는 프로시저
+create or replace procedure procTest(pnum number)   --매개변수
+is
+    vnum number; --일반 변수
+
+begin
+    vnum := pnum *2;
+   dbms_output.put_line(vnum);
+
+end procTest;
+/
+
+
+
+-- 프로시저 호출 구문 = PL/SQL
+begin
+    procTest(10);
+    procTest(20);
+    procTest(30);
+end;
+/
+
+create or replace procedure procTest(
+        pwidth number, 
+        pheight number)
+is
+    varea number
+begin
+    varea := pwidth * pheight;
+    dbms_output.put_line(varea);
+end procTest;
+/
+
+begin 
+    procTest(10,20);
+end;
+/
+
+
+-- 매개변수 규칙
+-- 1. 길이 표현(X)
+-- 2. NOT NULL 표현(X)
+-- 3. default 표현(O)
+create or replace procedure procTest(
+    pname varchar2
+)
+is
+begin
+    dbms_output.put_line(pname||'님 안녕하세요.');
+end procTest;
+/
+
+
+begin 
+    procTest('홍길동');
+end;
+/
+
+
+
+create or replace procedure procTest(
+    pwidth number ,
+    pheight number default 10
+)
+is
+    varea number;
+begin
+    varea := pwidth * pheight;
+    dbms_output.put_line(varea);
+end procTest;
+/
+
+begin
+    procTest(10, 20);
+    --procTest('',10); 에러남, default는 밑에서 부터 채워나가야한다.
+    procTest(20);
+end;
+/
+
+
+/*
+
+    매개변수 모드
+    - 매개변수가 값을 전달하는 방식
+    
+    1. in > 기본 모드
+    2. out
+    3. in out > 안씀
+
+*/
+
+
+create or replace procedure procTest(
+    pnum1 number,       -- in mode > in parameter
+    pnum2 in number,    -- 매배변수(인자값)
+    pnum3 out number,   -- out perameter(주소값을 전달) > 반환값 포함
+    pnum4 out number,
+    pnum5 out number
+)
+is begin
+    pnum3 := pnum1 + pnum2;
+end procTest;
+/
+
+declare
+    vresult1 number;-- 주소 전달
+    vresult2 number;
+    vresult3 number;
+begin
+    --procTest(10,20,vresult);
+    --dbms_output.put_line(vresult);
+    
+    procTest(10,20,vresult1,vresult2,vresult3);
+    dbms_output.put_line(vresult1);
+    dbms_output.put_line(vresult2);
+    dbms_output.put_line(vresult3);
+end;
+/
+
+
+
+
+/*
+
+    문제
+    1.procTest1
+        - 부서 전달(인자 1개) > in parameter
+        - 해당 부서의 직원중 급여를 가장 많이 받는 직원을 num을 반환 > out parameter
+        - procTest1 호출 >  num을 화면에 출력
+        
+    2. procTest2
+        - 직원 번호 전달 > in
+        - 같은 지역에 사는 지역수 ? > out
+        - 같은 직위를 가지는 직원수? > out
+        - 전달 직원의 급여보다 더 많이 받는 직원수? > out
+        - 호출 > 3개의 숫자를 출력
+
+*/
+select * from tblInsa;
+
+
+
+
+
+create or replace procedure procTest1 (
+    pbuseo  in    varchar2,
+    pnum    out   number
+)
+is
+begin
+    
+    select num into pnum from tblInsa
+        where buseo = pbuseo
+            and basicpay = (select max(basicpay) from tblInsa
+                                where buseo = pbuseo);
+    
+end procTest1;
+/
+
+declare
+    vnum number;
+begin
+    procTest1('총무부', vnum);
+    dbms_output.put_line(vnum);
+end;
+/
+
+
+
+
+
+create or replace procedure procTest2 (
+    pnum in number,
+    pcnt1 out number,
+    pcnt2 out number,
+    pcnt3 out number
+)
+is
+begin
+    -- 같은 지역에 사는 직원수 
+    -- count(*)-1 : 나빼고
+    select count(*)-1 into pcnt1 from tblInsa
+        where city = (select city from tblInsa where num = pnum);
+
+    -- 같ㅌ은 직위        
+    select count(*)-1 into pcnt2 from tblInsa
+        where jikwi = (select jikwi from tblInsa where num = pnum);
+    
+    -- 급여 많이 받는 직원 수    
+    select count(*) into pcnt3 from tblInsa
+        where basicpay > (select basicpay from tblInsa where num = pnum);
+    
+    
+end procTest2;
+/
+
+--호출하기
+declare
+    vcnt1 number;
+    vcnt2 number;
+    vcnt3 number;
+begin
+    procTest2('1030', vcnt1,vcnt2,vcnt3);
+    dbms_output.put_line(vcnt1); --2
+    dbms_output.put_line(vcnt2); --7
+    dbms_output.put_line(vcnt3); --10
+end;
+/
+
+select *  from tblInsa where num=1030;
 
 
 
@@ -1085,6 +1424,309 @@ end;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+select *  from tblStaff;
+select * from tblProject;
+
+-- 직원 퇴사 프로시저
+-- 1. 퇴사 직원의 담당 프로젝트 유무 확인?
+-- 2. 담당 프로젝트 존재 >  위임
+-- 3. 퇴사 직원 삭제
+create or replace procedure procDeleteStaff(
+    pseq    in number,  --퇴사할 직원 번호
+    pstaff  in number,  -- 위임받을 직원 번호
+    presult out number  -- 결과 > 성공(1) or 실패(0)
+)
+is
+    vcnt number;
+begin
+
+    -- . 사전 체크 >> 회사직원 & 위임 직원이 존재하는지 ? 
+    select count(*) into vcnt from tblStaff where seq = pseq or seq = pstaff;
+    
+    if vcnt = 2 then 
+    
+        -- 1. 
+        select count(*) into vcnt from tblProject where staff_seq = pseq;
+            
+        --2.
+        if vcnt >0 then
+            --2.1 위임
+            update tblProject set staff_seq = pstaff where staff_seq = pseq;
+        else
+            --2.2 아무것도 안함
+            null;
+        end if;
+        
+        -- 3.
+        delete from tblStaff where seq = pseq;
+        
+        -- 4. 
+        presult := 1; --성공
+    
+    else
+        presult := 0; -- 실패
+    end if;
+
+end procDeleteStaff;
+/
+
+
+
+--호출하기
+declare
+    vresult number;
+begin
+    procDeleteStaff(1,2,vresult);
+    dbms_output.put_line(vresult);
+end;
+/
+
+
+select *  from tblStaff;
+select * from tblProject;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rollback;--ddl호출할때 실행됨
+
+select *  from tblStaff;
+select * from tblProject;
+
+-- 직원 퇴사 프로시저
+-- 1. 퇴사 직원 > 담당 프로젝트 유무 확인?
+-- 2. 담당 프로젝트 존재 > 위임
+-- 3. 퇴사 직원 삭제
+create or replace procedure procDeleteStaff (
+    pseq    in  number,     --퇴사할 직원 번호 > 가장 담당 프로젝트가 적은 직원에게 위임
+    presult out number      --결과 > 성공(1) or 실패(0)
+)
+is
+    vcnt number;
+begin
+    
+    --. 사전 체크 > 퇴사 직원 > 존재하는지?
+    select count(*) into vcnt from tblStaff where seq = pseq;
+    
+    if vcnt = 1 then
+        
+        --1.
+        select count(*) into vcnt from tblProject where staff_seq = pseq;
+        
+        --2.
+        if vcnt > 0 then
+        
+            --담당 프로젝트의 개수가 가장 적은 직원?
+            
+        
+            --2.1 위임
+            update tblProject set staff_seq = (select seq from
+                                                (select 
+                                                    s.seq, count(p.seq) 
+                                                from tblStaff s
+                                                    left outer join tblProject p
+                                                        on s.seq = p.staff_seq
+                                                            group by s.seq
+                                                                order by count(p.seq) asc) a
+                                                                    where rownum = 1) where staff_seq = pseq;
+        else
+            --2.2 아무것도 안함
+            null;
+        end if;
+        
+        --3.
+        delete from tblStaff where seq = pseq;
+        
+        --4.
+        presult := 1; --성공
+    
+    else
+        presult := 0; --실패
+    end if;    
+    
+end procDeleteStaff;
+/
+
+
+declare
+    vresult number;
+begin
+    procDeleteStaff(1, vresult);
+    dbms_output.put_line(vresult);
+end;
+/
+
+
+
+
+select * from tblStaff;
+select * from tblProject;
+
+select seq from
+    (select 
+        s.seq, count(p.seq) 
+    from tblStaff s
+        left outer join tblProject p
+            on s.seq = p.staff_seq
+                group by s.seq
+                    order by count(p.seq) asc) a
+                        where rownum = 1;
+
+
+
+
+
+
+/*
+
+    저장 프로시저
+    1. 저장 프로시저
+    2. 저장 함수
+    
+    저장 함수 > 함수(Function)
+    - 저장 프로시저와 거의 동일
+    - 사용하는 목적이 조금 다르다.
+
+*/
+
+
+-- num1* num2 > 합 변환
+
+create or replace procedure procSum(
+    pnum1 number,
+    pnum2 number,
+    presult out number
+)
+is
+begin
+    presult := pnum1*pnum2;
+end procSum;
+/
+
+
+
+create or replace function fnSum(
+    pnum1 in number,
+    pnum2 in number
+)return number
+is begin
+    return pnum1 + pnum2;
+end fnSum;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+declare
+    vresult number;
+begin
+    procSum(10,20,vresult);
+    dbms_output.put_line(vresult);
+    
+    
+    -- PL/SQL에서는 함수를 잘 사용 안한다.
+    vresult := fnSum(10,20);
+    dbms_output.put_line(vresult);
+end;
+/
+
+select first, height, weight, fnSum(height,weight) from tblComedian;
+
+select
+    name, buseo, jikwi,
+    case
+        when substr(ssn,8,1) = '1' then '남자'
+        when substr(ssn,8,1) = '2' then '여자'
+    end as gender
+from tblInsa;
+
+
+
+
+create or replace function fnGender(
+    pssn varchar2
+)return varchar2
+is 
+begin
+    return case
+        when substr(pssn,8,1) = '1' then '남자'
+        when substr(pssn,8,1) = '2' then '여자'
+    end as gender;
+end fnGender;
+/
+
+--적용하기
+select
+    name, buseo, jikwi,
+    fnGender(ssn) as gender
+from tblInsa;
+
+-- 함수를 만들어서 좋은점 : 필요할거면 써 , 같이 쓸 수 있다. > 침 전체의 생산성이 높아진다
+
+-- 프로시저 > PL/SQL용
+-- 함수 > 표준 SQL용
 
 
 
