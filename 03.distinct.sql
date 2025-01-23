@@ -2,6 +2,7 @@
 
 -- 1.employees
 -- 직업이 어떤것들이 있는지 가져오시오. > job_id
+select distinct job_id from employees;
 
 -- 2.employees
 -- 고용일이 2002~2004년 사이인 직원들은 어느 부서에서 근무합니까? > hire_date + department_id
