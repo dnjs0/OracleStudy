@@ -1,10 +1,10 @@
 -- ex31.sql
 
 -- 근태 관리(출결)
-create table tblDate(
-    seq number primary key,             --PK
-    state varchar2(30) not null,        --정상, 지각,조회
-    regdate date not null               --날짜
+create table tblDate (
+    seq number primary key,     --PK
+    state varchar2(30) not null,--정상,지각,조퇴
+    regdate date not null       --날짜
 );
 
 
@@ -48,62 +48,63 @@ insert into tblDate (seq, state, regdate) values (20, '정상', '2024-08-30');
 
 commit;
 
+
 select to_char(regdate, 'yyyy-mm-dd') from tblDate order by regdate asc;
 
 -- 요구사항] 근태 조회 > 8월 전체의 근태 상황 열람
 -- 근태 > 달력에 출력
--- 2024-08-01~2024-08-30 > 모든 날짜 열람 + 상태 확인
--- 빠진 날짜 메꾸기 !
+-- 2024-08-01 ~ 2024-08-30 > 모든 날짜 열람 + 상태 확인
+-- 빠진 날짜 메꾸기~
 
 -- 1. PL/SQL
--- 2. 표준 SQL(**********************)
--- 3. 자바 연동(지금은 안됨)
+-- 2. 표준 SQL(*****)
+-- 3. 자바 연동(X)
 
--- 공휴일 테이블
-create table tblHoliday(
-    seq number primary key,     --pk
-    regdate date not null,      -- 날짜
-    name varchar2(30) not null  -- 공휴일명
+--공휴일 테이블
+create table tblHoliday (
+    seq number primary key,     --PK
+    regdate date not null,      --날짜
+    name varchar2(30) not null  --공휴일명
 );
-insert into tblHoliday values (1, '2024-08-15','광복절');
+insert into tblHoliday values (1, '2024-08-15', '광복절');
+
 
 
 -- PL/SQL
-
-set serveroutput on;
-
 declare
     vdate date;
     vcnt number;
     vstate tblDate.state%type;
 begin
-
-    -- seed(2024-08-01)
-    vdate := to_date('2024-08-01','yyyy-mm-dd');
-
-    for i in 1..31 loop
     
+    --seed(2024-08-01)
+    vdate := to_date('2024-08-01', 'yyyy-mm-dd'); --00:00:00
+    
+    for i in 1..31 loop
+        
         dbms_output.put_line(vdate);
         
         select count(*) into vcnt from tblDate
-            where to_char(regdate,'yyyy-mm-dd') = to_char(vdate, 'yyyy-mm-dd');
+            where to_char(regdate, 'yyyy-mm-dd') = to_char(vdate, 'yyyy-mm-dd');
         
-        dbms_output.put_line(vcnt);
+        --dbms_output.put_line(vcnt);
+        
         if vcnt > 0 then
-            -- 평일(나온날)
+            -- 평일(나온 날)
             select state into vstate from tblDate
-                where to_char(regdate,'yyyy-mm-dd') = to_char(vdate, 'yyyy-mm-dd');
+                where to_char(regdate, 'yyyy-mm-dd') = to_char(vdate, 'yyyy-mm-dd');
             dbms_output.put_line(vstate);
         else
-            -- 토, 일, 공휴일, 결석
-            if to_char(vdate, 'd') in ('1','7') then
+            -- 토,일,공휴일,결석
+            
+            if to_char(vdate, 'd') in ('1', '7') then
                 dbms_output.put_line('주말');
             else
-                --dbms_output.put_line('공휴일 or결석');
+                --dbms_output.put_line('공휴일 or 결석');
                 
                 select count(*) into vcnt from tblHoliday
-                    where to_char(regdate,'yyyy-mm-dd') = to_char(vdate, 'yyyy-mm-dd');
-                    
+                    where to_char(regdate, 'yyyy-mm-dd') = to_char(vdate, 'yyyy-mm-dd'); 
+                
                 if vcnt > 0 then
                     dbms_output.put_line('공휴일');
                 else
@@ -112,55 +113,41 @@ begin
                 
             end if;
             
-        end if;
+        end if;        
         
-        
-        
-        
-        vdate := vdate + 1;
+        vdate := vdate + 1; --하루씩 증가
+    
     end loop;
     
 end;
 /
 
 
--- 표준 SQL (****)
+-- 표준 SQL(*****)
 -- 계층형 쿼리 > 루프 역할
-
-select 
+select
     level,
-    sysdate + level -1
+    sysdate + level - 1
 from dual
     connect by level <= 10;
 
-
--- 원하는 시작 날짜 ~ 종료 날짜 생성 > 기억해주면 좋다!!!!(**************)
-
-
-create view
-
+-- 원하는 시작 날짜 ~ 종료 날짜 생성 > 기억(***)
+create or replace view vwDate
+as
 select
-    to_date('2024-08-01','yyyy-mm-dd') + level -1 as regdate
+    to_date('2024-08-01', 'yyyy-mm-dd') + level - 1 as regdate
 from dual
-    connect by level <= (to.date('2024-08-31','yyyy-mm-dd')
-                            - to.date('2024-08-01','yyyy-mm-dd') + 1);
+    connect by level <= (to_date('2024-08-31', 'yyyy-mm-dd')
+                            - to_date('2024-08-01', 'yyyy-mm-dd') + 1);
 
 
-
--- (to.date('2024-08-31','yyyy-mm-dd')- (to.date('2024-08-01','yyyy-mm-dd') + 1 : 8월1일부터 31일까지의 날짜 수
-
-
-
-select * from vwDate; --8월 한달 날짜
-select * from tblDate; --8월 근태기록
-
-
+select * from vwDate;  --8월 한달 날짜
+select * from tblDate; --8월 근태 기록
 
 select * from vwDate v
     left outer join tblDate t
         on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.regdate, 'yyyy-mm-dd')
             order by v.regdate asc;
-
 
 
 select 
@@ -169,6 +156,7 @@ select
         when to_char(v.regdate, 'd') = '1' then '일요일'
         when to_char(v.regdate, 'd') = '7' then '토요일'
         when h.seq is not null then h.name
+        when h.seq is null and t.seq is null then '결석'
         else t.state
     end as state
 from vwDate v
@@ -177,30 +165,15 @@ from vwDate v
             left outer join tblHoliday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.regdate, 'yyyy-mm-dd')
                     order by v.regdate asc;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            
+            
+            
+            
+            
+            
+            
+            
+            
 
 
 
