@@ -1723,10 +1723,616 @@ select
     fnGender(ssn) as gender
 from tblInsa;
 
--- 함수를 만들어서 좋은점 : 필요할거면 써 , 같이 쓸 수 있다. > 침 전체의 생산성이 높아진다
+-- 함수를 만들어서 좋은점 : 필요할거면 써 , 같이 쓸 수 있다. > 팀 전체의 생산성이 높아진다
 
 -- 프로시저 > PL/SQL용
 -- 함수 > 표준 SQL용
+
+
+/*
+
+    자바 
+    - main() 메서드 > 자동으로 호출됨,  콜백함수(Callback Method)라고 한다.
+    - hello() 메서드 > 개발자가 hello()호출
+
+
+    트리거, Trigger
+    - 개발자의 호출이 아닌, 미리 지정한 특정 사건이 발생하면 시스템이 자동으로 호출하는 객체
+    
+    트리거 구문
+    
+    CREATE [OR REPLACE] TRIGGER 트리거명
+        BEFORE | AFTER
+        INSERT | UPDATE | DELETE
+        ON 테이블명
+        [FOR EACH ROW]
+    [DECLARE
+        변수 선언;
+        커서 선언;]
+    BEGIN
+        구현부;
+    [EXCEPTION
+        예외처리;]
+    END;
+    
+    
+
+*/
+
+
+-- 트리거 선언(생성 + 자동 작동 실행, 생성과 동시에 자동으로 실행됨) > 트리거가 담당 사건을 감시하기 시작
+--> 사건 발생!!! > 트리거의 구현부가 실행됨
+
+
+-- tblInsa > 직원 삭제
+delete from tblInsa where num = 1003;
+rollback;
+-- ORA-02292: 무결성 제약조건(HR.SYS_C008520)이 위배되었습니다- 자식 레코드가 발견되었습니다
+-- 보너스에서 참조를 당하기때문에 지울수 없다.
+-- > 1. 자식 레코드 삭제 > 부모 레코드 삭제
+-- > 2. 부모 테이블과 자식 테이블의 관계 삭제 > 부모 레코드 삭제
+select * from tblInsa;
+select * from tblBonus;
+--1.
+delete from tblBonus where num = 1003;
+delete from tblInsa where num = 1003;
+--2.
+drop table tblBonus;
+
+-- tblInsa > 직원 삭제
+delete from tblInsa where num = 1003;
+
+set serveroutput on;
+
+create or replace trigger trgInsa
+    before          -- 3. 삭제가 발생하기 바로 직전에 구현을 실행해라, after 이면 지운 직후에 실행
+    delete          -- 2. 삭제가 발생하는지?
+    on tblInsa      -- 1. tblInsa 테이블에서
+begin
+    dbms_output.put_line('트리거 실행 '|| to_char(sysdate,'day hh24:mi:ss'));
+    
+    -- 금요일에는 퇴사가 불가능
+    -- 지금 무슨요일인지부터 알아야한다.
+    -- day > 금요일, dy > 금, d > 6
+    -- d - 6 을 추천!! 외국에서도 알아들을수 있기 때문이다.
+    if to_char(sysdate, 'd') = 6 then
+        -- 강제로 예외 발생 !!!
+        -- throw new Exception() 예외 던지기
+        -- ORA-1001
+        -- 사용자 정의 에러(-20000 ~ -29999)
+        raise_application_error(-20001, '금요일에는 퇴사가 불가능합니다.');
+    
+    end if;
+end trgInsa;
+/
+
+
+-- 트리거 > 동작 유무가 눈에 보이지 않음.
+-- 트리거의 상태를 확인하는 방법(시스템 테이블)
+select *  from user_triggers
+    where table_name = 'TBLINSA'; -- 대문자로 해야한다. TBLINSA
+
+-- *** 오라클 모든 객체(테이블, 뷰 등..)의 이름을 시스템 테이블에 저장해야한다.
+--      > 객체의 모든 이름을 대문자로 저장한다.
+
+-- 그럼 이거는 !! > 식별하는 구분 안함 ,'tblInsa'처럼 데이터면 구분함
+select * from tblInsa;
+
+-- 여기에 status가 enabled > 실행중
+select *  from user_triggers
+    where table_name = 'TBLINSA';
+
+-- 트리거 중지
+alter trigger trgInsa disable;
+-- 트리거 중지 + 삭제
+drop trigger trgInsa;
+
+
+-- 트리거 실행
+alter trigger trgInsa enable;
+
+
+
+
+-- 로그 기록
+-- tblTodo > 업무 발생 기록
+create table tblLog(
+    seq number primary key,                 -- pk
+    message varchar2(1000) not null,        -- 메시지
+    regdate date default sysdate not null   -- 발생시각
+);
+
+create or replace trigger trgTodo
+    after
+    insert or update or delete  -- 할수잇는거 다하기
+    on tblTodo
+declare
+    vmessage varchar2(1000);
+begin
+    
+    dbms_output.put_line('trgTodo 호출됨');
+    
+    -- 3개의 사건 > 1개의 트리거 호출 > 누가 호출??
+    if inserting then
+        dbms_output.put_line('insert');
+        vmessage := '새로운 할일이 추가되었습니다.';
+    elsif updating then
+        dbms_output.put_line('update');
+        vmessage := '기존 할일이 수정되었습니다.';
+    elsif deleting then
+        dbms_output.put_line('delete');
+        vmessage := '기존 할일이 삭제되었습니다.';
+    end if;
+    
+    insert into tblLog values (seqLog.nextVal, vmessage, default);
+    
+end trgTodo;
+/
+    
+select * from tblTodo;
+insert into tblTodo values (24, '새로운 할일', sysdate, null);
+update tblTodo set title = '새로운 할입니다.' where seq = 24;
+delete from tblTodo where seq = 24;
+
+select * from tblLog;
+
+--3	기존 할일(???)이 삭제되었습니다.	25/01/24
+
+drop trigger trgInsa;
+drop trigger trgTodo;
+
+/*
+
+    *** 트리거는 남용을 하면 안된다.
+        실시간 감시를 하기때문에 많이 쓰면 오라클이 느려진다.
+        시스템이 느려질까봐 아예 안쓰는 회사도 있다..
+        
+        
+    [FOR EACH ROW]
+
+    1. 생략
+    - 문장(DML) 단위 트리거
+    - Table Level Trigger
+    
+    2. 사용
+    - 행(Record) 단위 트리거
+
+*/
+
+create or replace trigger trgMen
+    after 
+    delete
+    on tblMen
+    for each row --행단위 트리거, 이거 안쓰고 문장단위 트리거로 하면 10명 다 지워도 삭제햇다고 한번만 출력함
+begin
+    dbms_output.put_line('남자 데이터를 삭제했습니다.'|| :old.name);    -- 누구를 삭제한거임.,..
+end trgMen;
+/
+
+rollback;
+select * from tblMen;
+delete from tblMen where name = '하하하';
+
+
+
+
+
+create or replace trigger trgMen
+    before 
+    update
+    on tblMen
+    for each row 
+begin
+    dbms_output.put_line('레코드 수정 : ' || :old.name);   
+    dbms_output.put_line('수정 전 나이 : ' || :old.age);  
+    dbms_output.put_line('수정 후 나이 : ' || :new.age);
+    
+    dbms_output.put_line('전 여친 : ' || :old.couple);
+    dbms_output.put_line('현 여친 : ' || :new.couple);
+    
+end trgMen;
+/
+
+-- :old > 사건이 적용되기 전의 레코드 상태 참조
+-- :new > 사건이 적용된 후의 레코드 상태 참조
+
+
+update tblMen set age = 26 where name = '홍길동';
+update tblMen set couple  = '박나래' where name = '홍길동';
+
+
+-- *** 의사컬럼 / 연산자
+-- insert > :old(X) 못씀, :new(O)
+-- update > :old(O) 못씀, :new(X)
+-- delete > :old(O) 못씀, :new(X)
+
+-- 회원 테이블, 게시판 테이블
+-- 포인트 정책
+-- 1. 글 작성 > 포인트 + 100
+-- 2. 글 삭제 > 포인트 - 50
+create table tblUser(
+    id varchar2(50) primary key,
+    point number not null
+);
+
+insert into tblUser values ('hong', 1000);
+
+create table tblBoard (
+    seq number primary key,
+    subject varchar2(1000) not null,
+    id varchar2(30) not null references tblUser(id)
+);
+create sequence seqBoard;
+
+
+-- 절차
+-- 1. 글을 쓴다(삭제한다).
+-- 2. 포인트를 누적한다(차감한다).
+
+-- Case 1. 하드코딩
+-- 개발자가 직접 제어하는것
+-- 실수로 인한 일부 업무가 누락될 수 있다.
+
+select * from tblBoard;
+select * from tblUser;
+
+-- 1.1 글쓰기
+insert into tblBoard values (seqBoard.nextval, '게시판입니다.','hong');
+
+-- 1.2 포인트 누적하기
+update tblUser set point = point + 100 where id = 'hong';
+
+-- 1.3 글삭제
+delete from tblBoard where seq = 1;
+
+-- 1.4 포인트 차감하기
+update tblUser set point = point - 50 where id = 'hong';
+
+
+select * from tblUser;
+
+
+-- Case 2. 프로시저
+-- 장점 : 전체 업무 단위화 > 간단함, 가독성, 재사용성
+-- 단점 : 초기 비용 증가
+create or replace procedure procAddBoard(
+    pid varchar2,
+    psubject varchar2
+)
+is
+begin
+
+    -- 2.1
+    insert into tblBoard values (seqBoard.nextval, psubject, pid);
+    
+    -- 2.1 포인트 누적하기
+    update tblUser set point = point + 100 where id = pid;
+
+
+end procAddBoard;
+/
+
+
+begin
+    procAddBoard('hong','안녕하세요');
+end;
+/
+
+select * from tblUser; -- 1050 > 1150
+
+
+create or replace procedure procDeleteBoard(
+    pseq number
+)
+is
+    vid tblUser.id%type;
+begin
+
+    -- 포인트 차감을 위해 id 알아오기
+    select id into vid from tblBoard where seq = pseq;
+    
+    -- 2.3 글삭제
+    delete from tblBoard where seq = pseq;
+    
+    -- 2.4 포인트 차감하기
+    update tblUser set point = point - 50 where id = vid;
+
+
+end procDeleteBoard;
+/
+
+
+
+begin
+    procDeleteBoard(2);
+end;
+/
+
+select * from tblUser; -- 1150 > 1100
+select * from tblBoard;
+
+
+
+
+-- Case 3. 트리거
+create or replace trigger trgBoard
+    after
+    insert or delete
+    on tblBoard
+    for each row
+begin
+
+    if inserting then
+        update tblUser set point = point + 100 where id = :new.id;
+    elsif deleting then
+        update tblUser set point = point - 50 where id = :old.id;
+    end if;
+
+end trgBoard;
+/
+
+
+select * from tblUser; -- 1100 > 1200 < 1150
+select * from tblBoard;
+
+
+-- 3.1 글쓰기
+insert into tblBoard values (seqBoard.nextval, '게시판입니다.','hong');
+-- 단순히 글을썼지만  trigger로 인해 점수가 자동으로 오름.
+
+-- 3.2 글삭제
+delete from tblBoard where seq = 3;
+-- 단순히 글을썼지만  trigger로 인해 점수가 자동으로 차감됨.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- 엔티티면(테이블명)
+-- 1. 단수형 >  권장
+-- 2. 복수형
+
+
+
+-- 상품(재고) 테이블, 주문 테이블
+-- 1. 주문 발생
+-- 2. 재고 감소
+
+create table tblProduct(
+    seq number primary key,
+    name varchar2(100) not null,
+    stock number not null
+);
+
+
+create table tblOrder(
+    seq number primary key,
+    pseq number not null references tblProduct(seq),
+    qty number not null
+);
+
+create sequence seqProduct;
+create sequence seqOrder;
+
+
+insert into tblProduct values (seqProduct.nextVal, '마우스',100);
+insert into tblProduct values (seqProduct.nextVal, '키보드',50);
+
+create or replace trigger trgOrder
+    after insert on tblOrder
+    for each row
+begin
+    update tblProduct set
+        stock = stock - :new.qty
+            where seq = :new.pseq;
+
+end trgOrder;
+/
+
+-- 주문 발생
+insert into tblOrder (seq, pseq, qty) values (seqOrder.nextVal, 1, 3); -- 100 > 97
+insert into tblOrder (seq, pseq, qty) values (seqOrder.nextVal, 2, 1); -- 50 >  49
+
+select * from tblProduct;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+    인덱스, Index
+    - 색인
+    - 검색을 빠른 속도로 하기 위해 사용하는 도구
+    
+    데이터베이스
+    - 실제 데이터베이스(저장 장치, HDD) > 레코드 순서가 사용자가 insert한 순서(X)
+        > DBMS가 자체적으로 순서에 맞게 저장
+    - 어떤 데이터를 검색(select) > 처음 ~ 끝까지 차례대로 검색 > table full scan > 겁나 느림
+    - 특정 컬럼 선택 > 별도의 테이블 복사 > 미리 정렬 >> 인덱스
+    
+    인덱스 장단점
+    - 처리 속도를 향상 시킨다.(where절)
+    - DB 성능을 저하시킬 수 있다. > 주의!!!!
+    
+    
+    자동으로 인덱스가 걸리는 컬럼
+    1. Primary key
+    2. Unique
+    
+    where num = 1001 >> 얘가 압도적으로 빠름 pk가 자동으로 주어지기 때문이다.
+    where name = '홍길동'
+    
+    > 쿼리 다 짜고 맨 나중에 하는 후반부 작업, 운영하면서도 건드리는 작업
+
+*/
+
+select * from tblInsa;
+
+
+select * from tblAddressBook;
+select count(*) from tblAddressBook;
+
+
+create table tblIndex
+as
+select * from tblAddressBook;
+
+insert into tblIndex select * from tblIndex; --자기 복사해서 더미데이터 만들기
+select count(*) from tblIndex; --8192000
+
+-- f5 : 메시지 출력
+-- ctrl enter ; 표로 출력
+
+
+set timing on;
+-- 인덱스가 없는 상태에서 검색하기
+select /*+ INDEX(tblIndex idxName) */
+count(*) from tblIndex where name = '최민기';
+
+
+
+select 
+count(*) from tblIndex where job = '학생';
+
+
+
+-- 인덱스 생성
+create index idxName on tblIndex(name);
+
+-- 인덱스 삭제
+drop index idxName;
+
+--인덱스 없을때 : 4초, 있을때 0.013초 
+
+
+
+
+
+
+
+
+
+/*
+
+    인덱스 종류
+    1. 고유 인덱스
+        - PK, UQ > 자동으로 생성되는 인덱스
+        - 색인의 값이 중복이 불가능하다.
+    2. 비고유 인덱스
+        - 일반 컬럼 > 사용자가 생성하는 인덱스
+        - 색인의 값이 중복이 가능하다.
+    3. 단일 인덱스
+        - 컬럼 1개를 대상으로 만드는 인덱스
+    4. 복합 인덱스
+        - 컬럼 N개를 대상으로 만드는 인덱스
+    5. 함수 기반 인덱스
+
+*/
+
+select
+    count(*) from tblIndex where hometown ='서울'; --경과 시간: 00:00:04.243
+
+create index idxHometown on tblIndex(hometown);
+
+select /*+ INDEX(tblIndex idxHometown) */
+count(*) from tblIndex where hometown = '서울';--경과 시간: 00:00:00.975
+
+select /*+ INDEX(tblIndex idxHometownJob) */
+count(*) from tblIndex where hometown = '서울' and job = '학생'; --경과 시간: 00:00:00.033
+-- 인덱스 걸린 컬럼만! 빠름, 인덱스 두개 걸리면 전체 탐색 > 빨리하려면 두개 인덱스 통합해서 또 만들어야한다.
+
+create index idxHometownJob on tblIndex(hometown,job);
+
+-- 두개 통합해서 1개만 찾아도 인덱스 됨
+select /*+ INDEX(tblIndex idxHometownJob) */
+count(*) from tblIndex where  job = '학생'; --경과 시간: 00:00:01.293
+
+
+
+
+
+
+-- 함수 인덱스
+select * from tblAddressBook where rownum <= 3;
+
+select count(*) from tblIndex
+    where substr( email, instr(email, '@')) = '@naver.com';
+
+create index idxEmail on tblIndex(email);
+
+-- 가공했기때문에 여전히 오래걸림 > substr( email, instr(email, '@'))여리게 인덱스를 걸어야한다.
+select /*+ INDEX(tblIndex idxHometownJob) */
+count(*) from tblIndex where substr( email, instr(email, '@')) = '@naver.com';
+
+
+drop index idxEmail;
+create index idxEmail on tblIndex(substr( email, instr(email, '@')));
+
+select /*+ INDEX(tblIndex idxEmail) */
+count(*) from tblIndex where substr( email, instr(email, '@')) = '@naver.com';
+
+
+/*
+
+    프로젝트 과정 마지막 > 부하 걸리는 작업 선별 > 인덱스 적용 > 차이 발생?
+    
+    인덱스를 사용해야 하는 상황
+    1. 테이블에 데이터(레코드)가 많을 때
+    2. where절에 사용되는 횟수가 많은 컬럼에 적용 or 조인의 조건
+    3. 인덱스 손익분기점 > 검색 결과가 원본 테이블의 10~15% 이하인 경우
+    4. null을 포함하는 경우 > 인덱스에는 null이 미포함
+    
+    인덱스를 사용하지 말하야하는 상황
+    1. 테이블에 데이터(레코드)가 적을 때
+    2. 인덱스 손익분기점 > 검색 결과가 원본 테이블의 15% 이상인 경우
+    3. 해당 테이블이 삽입, 수정, 삭제가 빈번할 경우
+
+*/
+
+
+
+
+
+
+
+
 
 
 
