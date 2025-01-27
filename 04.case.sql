@@ -113,17 +113,68 @@ from tblCountry;
 -- tblComedian
 
 -- 11. 몸무게가 70kg 이상이면 '과체중', 50kg 이상이면 '정상체중', 그 외는 '저체중'으로 분류하세요.
+select weight,
+    case
+        when weight >= 70 then '과체중'
+        when weight >= 50 then '정상체중'
+        else '저체중'
+    end as 체중등급
+from tblComedian;
+
+
 
 -- 12. 성별이 'm'이면 '남자', 'f'면 '여자'로 표시하세요.
+select first,
+    case
+        when gender = 'm' then '남자'
+        else '여자'
+    end as 성별
+from tblComedian;
+
+
 
 -- 13. 키가 180cm 이상이면 '장신', 170cm 이상이면 '중간', 그 외는 '단신'으로 분류하세요.
+select first,height,
+    case
+        when height >=180 then '장신'
+        when height >=170 then '중간'
+        else '단신'
+    end as 키
+from tblComedian;
+
+
 
 -- 14. 이름의 길이가 3자 이상이면 '긴 이름', 그 외는 '짧은 이름'으로 분류하세요.
+select last||first as 이름,
+    case
+        when length(last||first) >= 3 then '긴이름'
+        else '짧은이릅'
+    end as 이름길이
+from tblComedian;
+
 
 
 
 -- tblDiary
 
 -- 16. 날씨가 '맑음'이면 '야외활동', '흐림'이면 '실내활동', 그 외는 '휴식'으로 분류하세요.
+select weather,
+    case
+        when weather = '맑음' then '야외활동'
+        when weather = '흐림' then '실내활동'
+        else '휴식'
+    end as 날씨분류
+from tblDiary;
+
+
 
 -- 17. 일기의 제목이 '오늘'로 시작하면 '일상', '영화'로 시작하면 '문화생활', 그 외는 '기타'로 분류하세요.
+select subject,
+    case
+        when subject like '오늘%' then '일상'
+        when subject like '영화%' then '믄화생활'
+        else '기타'
+    end as 분류
+from tblDiary;
+
+
