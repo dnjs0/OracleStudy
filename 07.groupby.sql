@@ -1,10 +1,13 @@
 -- tblHousekeeping 테이블 문제
 
 -- 1. 각 날짜별로 구매한 물품의 총 개수와 총 금액을 구하시오.
-select * from tblhousekeeping;
+select buydate, count(*)
+from tblhousekeeping
+group by buydate;
 
 
 -- 2. 가격대별로 구매한 물품의 수를 구하시오. (가격대는 1000원 단위로 나누어 주세요)
+select * from tblhousekeeping;
 
 -- 3. 각 물품별로 총 구매 금액을 구하고, 구매 금액이 높은 순으로 정렬하시오.
 
