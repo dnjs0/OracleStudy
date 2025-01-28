@@ -1,33 +1,69 @@
 -- tblHousekeeping 테이블 문제
 
 -- 1. 각 날짜별로 구매한 물품의 총 개수와 총 금액을 구하시오.
-select buydate, count(*)
+select buydate, count(qty), sum(price)
 from tblhousekeeping
 group by buydate;
 
 
 -- 2. 가격대별로 구매한 물품의 수를 구하시오. (가격대는 1000원 단위로 나누어 주세요)
-select * from tblhousekeeping;
+select price, count(*)
+from tblhousekeeping
+group by price;
+
+select floor(price/1000)*1000, count(*)
+from tblhousekeeping
+group by floor(price/1000)*1000
+order by floor(price/1000)*1000;
+
 
 -- 3. 각 물품별로 총 구매 금액을 구하고, 구매 금액이 높은 순으로 정렬하시오.
+select item, sum(price)
+from tblhousekeeping
+group by item
+order by sum(price) desc;
 
--- 4. 각 주차별로 구매한 물품의 총 개수와 총 금액을 구하시오. (주는 일요일부터 시작합니다)
+-- 4. 각 주차별로 구매한 물품의 총 개수와 총 금액을 구하시오. (주는 일요일부터 시작합니다)*****
+select * 
+from tblhousekeeping;
 
--- 5. 구매 수량이 10개 이상인 물품들의 평균 가격을 구하시오.
+-- 5. 구매 수량이 10개 이상인 물품들의 평균 가격을 구하시오.*****
+select item,qty, price
+from tblhousekeeping
+where qty>= 10;
 
--- 6. 각 물품별로 구매 횟수를 구하고, 구매 횟수가 1회 초과인 물품만 출력하시오.
+select avg(price)
+from tblhousekeeping
+where qty>= 10;
+
+
+-- 6. 각 물품별로 구매 횟수를 구하고, 구매 횟수가 1회 초과인 물품만 출력하시오.*****
+select item, count(*) 
+from tblhousekeeping
+group by item
+having count(*) >1 ;
 
 -- 7. 구매 날짜별로 가장 비싼 물품의 가격을 구하시오.
+select buydate, max(price) 
+from tblhousekeeping
+group by buydate;
 
--- 8. 각 물품 종류별로 총 구매 금액을 구하고, 10만원 이상 구매한 물품 종류만 출력하시오.
+-- 8. 각 물품 종류별로 총 구매 금액을 구하고, 10만원 이상 구매한 물품 종류만 출력하시오.*****
+select item, sum(price*qty)
+from tblhousekeeping
+group by item
+having sum(price*qty) >=100000;
 
--- 9. 요일별로 평균 구매 금액을 구하고, 평균 금액이 높은 순으로 정렬하시오.
+-- 9. 요일별로 평균 구매 금액을 구하고, 평균 금액이 높은 순으로 정렬하시오.*****
+select * from tblhousekeeping;
 
--- 10. 월별로 구매한 물품의 총 개수와 총 금액을 구하시오.
+-- 10. 월별로 구매한 물품의 총 개수와 총 금액을 구하시오.*****
+select * from tblhousekeeping;
 
 -- tblInsa 테이블 문제
 
 -- 1. 각 부서별로 직원 수와 평균 급여(기본급+수당)를 구하시오.
+select * from tblInsa;
 
 -- 2. 직위별로 직원 수와 최고 급여, 최저 급여를 구하시오.
 
