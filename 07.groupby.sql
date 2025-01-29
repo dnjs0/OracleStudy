@@ -63,13 +63,22 @@ select * from tblhousekeeping;
 -- tblInsa 테이블 문제
 
 -- 1. 각 부서별로 직원 수와 평균 급여(기본급+수당)를 구하시오.
-select * from tblInsa;
+select buseo, count(num) as 직원수, round(avg(basicpay + sudang),1) as 평균급여
+from tblInsa
+group by buseo;
 
 -- 2. 직위별로 직원 수와 최고 급여, 최저 급여를 구하시오.
+select jikwi, count(num), max(basicpay), min(basicpay)
+from tblInsa
+group by jikwi;
 
--- 3. 입사년도별로 직원 수를 구하고, 가장 많은 직원이 입사한 연도 3개를 구하시오.
+-- 3. 입사년도별로 직원 수를 구하고, 가장 많은 직원이 입사한 연도 3개를 구하시오.*****
+select ibsadate, count(*)
+from tblInsa
+group by ibsadate;
 
 -- 4. 각 도시별로 직원 수와 평균 급여를 구하고, 직원 수가 5명 이상인 도시만 출력하시오.
+select * from tblInsa;
 
 -- 5. 부서별, 직위별로 평균 급여를 구하고, 부서와 직위 순으로 정렬하시오.
 
