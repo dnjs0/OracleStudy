@@ -78,13 +78,24 @@ from tblInsa
 group by ibsadate;
 
 -- 4. 각 도시별로 직원 수와 평균 급여를 구하고, 직원 수가 5명 이상인 도시만 출력하시오.
-select * from tblInsa;
+select city, round(avg(basicpay),1),count(*)
+from tblInsa
+group by city
+having count(*)>=5;
 
 -- 5. 부서별, 직위별로 평균 급여를 구하고, 부서와 직위 순으로 정렬하시오.
+select buseo,jikwi, round(avg(basicpay+sudang),1)
+from tblInsa
+group by buseo,jikwi
+order by buseo,jikwi;
 
--- 6. 나이대별(20대, 30대, 40대 등)로 직원 수와 평균 급여를 구하시오.
+-- 6. 나이대별(20대, 30대, 40대 등)로 직원 수와 평균 급여를 구하시오.******
+select year-cast(substr(ssn,1,2) as int)
+from tblInsa;
 
 -- 7. 입사월별로 직원 수와 평균 급여를 구하고, 평균 급여가 높은 순으로 정렬하시오.
+select * 
+from tblInsa;
 
 -- 8. 부서별로 가장 높은 급여를 구하시오.
 
