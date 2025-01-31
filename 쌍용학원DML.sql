@@ -218,4 +218,97 @@ insert into Student(studentSeq,studentName,studentPw,studentTel,studentDate) val
 insert into Student(studentSeq,studentName,studentPw,studentTel,studentDate) values (student_seq.nextval,'문미소',4543217,'010-0264-1375','2025-01-13');
 
 
+-- 자격증
+insert into crtf values (1, '정보처리기사', '한국산업인력공단');
+insert into crtf values (2, 'CISSP', 'ISC');
+insert into crtf values (3, 'CCNA', 'Cisco');
+insert into crtf values (4, '컴퓨터시스템응용기술사', '한국산업인력공단');
+
+
+-- 주요기술스택
+INSERT INTO tech VALUES (1, '자바');
+INSERT INTO tech VALUES (2, '파이썬');
+INSERT INTO tech VALUES (3, 'AWS');
+INSERT INTO tech VALUES (4, '자바스크립트');
+INSERT INTO tech VALUES (5, '리액트');
+INSERT INTO tech VALUES (6, '도커');
+INSERT INTO tech VALUES (7, 'Kubernetes');
+INSERT INTO tech VALUES (8, 'SQL');
+INSERT INTO tech VALUES (9, 'TensorFlow');
+INSERT INTO tech VALUES (10, 'PyTorch');
+
+--관리자
+create sequence admin_seq;
+insert into Admin(AdminSeq,AdminName,AdminTel,AdminPw) values (admin_seq.nextval,'김우현','010-9193-3250',1493870);
+insert into Admin(AdminSeq,AdminName,AdminTel,AdminPw) values (admin_seq.nextval,'김가현','010-1234-5678',2791964);
+insert into Admin(AdminSeq,AdminName,AdminTel,AdminPw) values (admin_seq.nextval,'이가은','010-2345-6789',3172508);
+insert into Admin(AdminSeq,AdminName,AdminTel,AdminPw) values (admin_seq.nextval,'박결희','010-3456-7890',4438201);
+insert into Admin(AdminSeq,AdminName,AdminTel,AdminPw) values (admin_seq.nextval,'정곽민','010-5678-9012',1156493);
+
+-- 과정명
+drop sequence course_seq;
+create sequence course_seq;
+select * from course;
+
+insert into Course(courseSeq,courseName) values (course_seq.NEXTVAL, q'[AWS와 Docker & Kubernetes를 활용한 Java Full-Stack 개발자 양성과정]');
+insert into Course(courseSeq,courseName) values (course_seq.NEXTVAL, q'[AWS 클라우드와 Kafka를 활용한 Java(자바) Full-Stack 개발자 양성과정]');
+insert into Course(courseSeq,courseName) values (course_seq.NEXTVAL, q'[Python를 활용한 웹 개발자 양성과정]');
+insert into Course(courseSeq,courseName) values (course_seq.NEXTVAL, q'[Oracle을 활용한 데이터베이스 개발자 양성과정]');
+insert into Course(courseSeq,courseName) values (course_seq.NEXTVAL, q'[Kotlin을 활용한 모바일 어플 개발자 양성과정]');
+insert into Course(courseSeq,courseName) values (course_seq.NEXTVAL, q'[Html을 활용한 프론트엔드 개발자 양성과정]');
+
+
+--과목명
+drop sequence subject_seq;
+create sequence subject_seq;
+select * from subject;
+
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[java]','필수');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[HTML]','필수');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[CSS]','필수');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[jsp]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[JavaScript]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Node.js]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[React]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Angular]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[spring]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[spring boot]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[servlet]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Python]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Django]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Flask]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[FastAPI]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[C#]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[C++]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[ASP.NET]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Kotlin]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Ktor]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[PHP]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[AWS]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Google Cloud Platform (GCP)]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Microsoft Azure]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[IBM Cloud]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Oracle Cloud]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[oracle]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[MySQL]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[PostgreSQL]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[MS SQL Server]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[SQLite]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[MariaDB]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[MongoDB]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Cassandra]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Redis]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[CouchDB]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[kafka]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Apache Pulsar]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Amazon Kinesis]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Google Cloud Pub/Sub]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Docker]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Kubernetes]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Vagrant]','선택');
+insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Ansible]','선택');
+
+--강의실
+
+
 
