@@ -90,7 +90,7 @@ group by buseo,jikwi
 order by buseo,jikwi;
 
 -- 6. 나이대별(20대, 30대, 40대 등)로 직원 수와 평균 급여를 구하시오.******
-select year-cast(substr(ssn,1,2) as int)
+select cast(substr(ssn,1,2) as int)
 from tblInsa;
 
 -- 7. 입사월별로 직원 수와 평균 급여를 구하고, 평균 급여가 높은 순으로 정렬하시오.
