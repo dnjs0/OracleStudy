@@ -309,6 +309,24 @@ insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTV
 insert into subject(subjectSeq,subjectName,subjectEsn) values (subject_seq.NEXTVAL, q'[Ansible]','선택');
 
 --강의실
+create sequence clsRoom_seq;
+insert into clsRoom(clsRoomSeq,clsRoomName,clsRoomPpl) values (clsRoom_seq.NEXTVAL, q'[제 1 강의실]','30');
+insert into clsRoom(clsRoomSeq,clsRoomName,clsRoomPpl) values (clsRoom_seq.NEXTVAL, q'[제 2 강의실]','30');
+insert into clsRoom(clsRoomSeq,clsRoomName,clsRoomPpl) values (clsRoom_seq.NEXTVAL, q'[제 3 강의실]','30');
+insert into clsRoom(clsRoomSeq,clsRoomName,clsRoomPpl) values (clsRoom_seq.NEXTVAL, q'[제 4 강의실]','26');
+insert into clsRoom(clsRoomSeq,clsRoomName,clsRoomPpl) values (clsRoom_seq.NEXTVAL, q'[제 5 강의실]','26');
+insert into clsRoom(clsRoomSeq,clsRoomName,clsRoomPpl) values (clsRoom_seq.NEXTVAL, q'[제 6 강의실]','26');
 
+-- 개설과정
+drop sequence process_seq;
+create sequence process_seq;
+select * from process;
 
+insert into process(processSeq,courseSeq,clsRoomSeq,teacherSeq, processName,processSDate,processEDate,processCount) values (process_seq.NEXTVAL,1,1,1, q'[AWS와 Docker & Kubernetes를 활용한 Java Full-Stack 개발자 양성과정]', to_date('2024-08-07','YYYY-MM-DD'), to_date('2025-02-06','YYYY-MM-DD'),30);
+insert into process(processSeq,courseSeq,clsRoomSeq,teacherSeq, processName,processSDate,processEDate,processCount) values (process_seq.NEXTVAL,1,2,2, q'[AWS와 Docker & Kubernetes를 활용한 Java Full-Stack 개발자 양성과정]', to_date('2024-09-03','YYYY-MM-DD'), to_date('2025-03-02','YYYY-MM-DD'),30);
+insert into process(processSeq,courseSeq,clsRoomSeq,teacherSeq, processName,processSDate,processEDate,processCount) values (process_seq.NEXTVAL,2,3,3, q'[AWS 클라우드와 Kafka를 활용한 Java(자바) Full-Stack 개발자 양성과정]', to_date('2024-10-25','YYYY-MM-DD'), to_date('2025-04-24','YYYY-MM-DD'),30);
+insert into process(processSeq,courseSeq,clsRoomSeq,teacherSeq, processName,processSDate,processEDate,processCount) values (process_seq.NEXTVAL,1,4,4, q'[AWS와 Docker & Kubernetes를 활용한 Java Full-Stack 개발자 양성과정]', to_date('2024-11-14','YYYY-MM-DD'), to_date('2025-05-13','YYYY-MM-DD'),26);
+insert into process(processSeq,courseSeq,clsRoomSeq,teacherSeq, processName,processSDate,processEDate,processCount) values (process_seq.NEXTVAL,1,5,5, q'[AWS와 Docker & Kubernetes를 활용한 Java Full-Stack 개발자 양성과정]', to_date('2024-12-05','YYYY-MM-DD'), to_date('2025-06-04','YYYY-MM-DD'),26);
+insert into process(processSeq,courseSeq,clsRoomSeq,teacherSeq, processName,processSDate,processEDate,processCount) values (process_seq.NEXTVAL,2,6,6, q'[AWS 클라우드와 Kafka를 활용한 Java(자바) Full-Stack 개발자 양성과정]', to_date('2025-01-13','YYYY-MM-DD'), to_date('2025-07-14','YYYY-MM-DD'),26);
+insert into process(processSeq,courseSeq,clsRoomSeq,teacherSeq, processName,processSDate,processEDate,processCount) values (process_seq.NEXTVAL,1,1,1, q'[AWS와 Docker & Kubernetes를 활용한 Java Full-Stack 개발자 양성과정]', to_date('2025-02-25','YYYY-MM-DD'), to_date('2025-08-24','YYYY-MM-DD'),30);
 
