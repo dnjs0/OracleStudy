@@ -1,5 +1,20 @@
 -- 쌍용학원관리DDL
 
+BEGIN
+  -- 테이블 삭제
+  FOR t IN (SELECT table_name FROM user_tables) LOOP
+    EXECUTE IMMEDIATE 'DROP TABLE ' || t.table_name || ' CASCADE CONSTRAINTS';
+  END LOOP;
+  
+  -- 시퀀스 삭제
+  FOR s IN (SELECT sequence_name FROM user_sequences) LOOP
+    EXECUTE IMMEDIATE 'DROP SEQUENCE ' || s.sequence_name;
+  END LOOP;
+END;
+/
+
+select * from tabs;
+
 DROP INDEX PK_Admin;
 
 select * from tabs; 
@@ -136,6 +151,7 @@ ALTER TABLE book
 DROP INDEX PK_subject;
 
 /* 과목 */
+
 CREATE TABLE subject (
 	subjectSeq NUMBER NOT NULL, /* 과목번호 */
 	subjectName VARCHAR2(1000) NOT NULL, /* 과목명 */
@@ -409,10 +425,11 @@ ALTER TABLE student
 DROP INDEX PK_stStatus;
 
 /* 교육생상태리스트 */
+drop table stStatus;
 CREATE TABLE stStatus (
 	stStatusSeq NUMBER NOT NULL, /* 교육생상태리스트번호 */
 	studentSeq NUMBER NOT NULL, /* 교육생번호 */
-	status VARCHAR2(10), /* 상태(수료,중도탈락) */
+	status VARCHAR2(50), /* 상태(수료,중도탈락) */
 	stStatusDate DATE /* 날짜(수료,중도탈락) */
 );
 
@@ -617,7 +634,6 @@ CREATE TABLE process (
 	courseSeq NUMBER NOT NULL, /* 과정번호 */
 	clsRoomSeq NUMBER NOT NULL, /* 강의실번호 */
 	teacherSeq NUMBER NOT NULL, /* 교사번호 */
-	processName VARCHAR2(1000), /* 과정명 */
 	processSDate DATE, /* 과정시작날짜 */
 	processEDate DATE, /* 과정종료날짜 */
 	processCount NUMBER /* 수강정원 */
@@ -856,6 +872,7 @@ ALTER TABLE attendance
 		ENABLE
 		VALIDATE;
 
+ALTER TABLE attendance DROP CONSTRAINT FK_process_TO_attendance;
         
 --=========================================================================================================================================================        
 --=========================================================================================================================================================
@@ -1226,20 +1243,17 @@ ALTER TABLE team
         
 -- 기업
 
-DROP INDEX PK_enter;
+drop table enter;
 
-/* 기업 */
-DROP TABLE enter 
-	CASCADE CONSTRAINTS;
-
-/* 기업 */
+--기업 
 CREATE TABLE enter (
-	enterSeq NUMBER NOT NULL, /* 기업번호 */
-	crtfSeq NUMBER NOT NULL, /* 자격증번호 */
-	techSeq NUMBER NOT NULL, /* 주요기술스택번호 */
-	enterName VARCHAR2(100), /* 기업명 */
-	enterLocation VARCHAR2(100), /* 위치 */
-	enterSalary NUMBER /* 초봉 */
+    enterSeq NUMBER NOT NULL, /* 기업번호 */
+    crtfSeq NUMBER NOT NULL, /*자격증번호 */
+    techSeq NUMBER NOT NULL, /* 주요기술스택번호 */
+    enterName VARCHAR2(100), /* 기업명 */
+    enterBuseo VARCHAR2(300), /* 부서 */
+    enterLocation VARCHAR2(100), /* 위치 */
+    enterSalary NUMBER /* 초봉 */
 );
 
 COMMENT ON TABLE enter IS '기업';
@@ -1252,41 +1266,43 @@ COMMENT ON COLUMN enter.techSeq IS '주요기술스택번호';
 
 COMMENT ON COLUMN enter.enterName IS '기업명';
 
+COMMENT ON COLUMN enter.enterBuseo IS '부서';
+
 COMMENT ON COLUMN enter.enterLocation IS '위치';
 
 COMMENT ON COLUMN enter.enterSalary IS '초봉';
 
 CREATE UNIQUE INDEX PK_enter
-	ON enter (
-		enterSeq ASC
-	);
+    ON enter (
+        enterSeq ASC
+    );
 
 ALTER TABLE enter
-	ADD
-		CONSTRAINT PK_enter
-		PRIMARY KEY (
-			enterSeq
-		);
+    ADD
+        CONSTRAINT PK_enter
+        PRIMARY KEY (
+            enterSeq
+        );
 
 ALTER TABLE enter
-	ADD
-		CONSTRAINT FK_tech_TO_enter
-		FOREIGN KEY (
-			techSeq
-		)
-		REFERENCES tech (
-			techSeq
-		);
+    ADD
+        CONSTRAINT FK_tech_TO_enter
+        FOREIGN KEY (
+            techSeq
+        )
+        REFERENCES tech (
+            techSeq
+        );
 
 ALTER TABLE enter
-	ADD
-		CONSTRAINT FK_crtf_TO_enter
-		FOREIGN KEY (
-			crtfSeq
-		)
-		REFERENCES crtf (
-			crtfSeq
-		);
+    ADD
+        CONSTRAINT FK_crtf_TO_enter
+        FOREIGN KEY (
+            crtfSeq
+        )
+        REFERENCES crtf (
+            crtfSeq
+        );
         
 -- 프로젝트
 

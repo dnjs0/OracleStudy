@@ -7,6 +7,7 @@ create table tblDate (
     regdate date not null       --날짜
 );
 
+select * from tblDate;
 
 -- 2024년 8월
 insert into tblDate (seq, state, regdate) values ( 1, '정상', '2024-08-01');
@@ -68,7 +69,7 @@ create table tblHoliday (
 );
 insert into tblHoliday values (1, '2024-08-15', '광복절');
 
-
+select * from tblholiday;
 
 -- PL/SQL
 declare
