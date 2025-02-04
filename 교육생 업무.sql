@@ -97,14 +97,31 @@ select
     attendanceseq as "번호",
     attendancedate as "날짜",
     TO_char(attendancestime, 'HH24:MI') as "등원 시간",
-    to_char(attendanceetime, 'HH24:MI') as "하원 시간",
-    attendancest as "상태"
+    to_char(attendanceetime, 'HH24:MI') as "하원 시간"
 from attendance
 where studentseq=1;
 
-/* 추가 */
-INSERT INTO attendance 
-VALUES (attendance_seq.nextval, 1, sysdate, TO_DATE('09:00', 'HH24:MI'), TO_DATE('18:00', 'HH24:MI'), '정상');
+
+/* 등원 추가 */
+sINSERT INTO attendance 
+VALUES (
+    attendance_seq.nextval, 
+    1, 
+    TRUNC(SYSDATE),  -- 날짜 (시간 00:00:00 초기화)
+    SYSDATE,         -- 현재 시간으로 출근 기록
+    NULL,            -- 퇴근 시간은 아직 없음
+    '출석'
+);
+
+
+/* 수업종료 */
+UPDATE attendance
+SET attendanceetime = SYSDATE,   -- 현재 시간으로 퇴근 기록
+    attendancest = '정상'       -- 상태 변경
+WHERE studentseq = 1 
+  AND attendancedate = TRUNC(SYSDATE)  -- 오늘 날짜의 출석 기록만 수정
+  AND attendanceetime IS NULL;      -- 아직 퇴근 기록이 없는 경우
+
 
                           
 
@@ -158,4 +175,29 @@ from vwMonth v
         on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
-                    order by v.regdate asc;                                                                 
+                    order by v.regdate asc;              
+                    
+                    
+                    
+/* 특정 날짜 조회 */
+create or replace view vwDate
+as
+select
+    to_date('2024-07-03', 'yyyy-mm-dd') regdate
+from dual;
+
+select s
+    v.regdate as "날짜",
+    case
+        when to_char(v.regdate, 'd') = '1' then '일요일'
+        when to_char(v.regdate, 'd') = '7' then '토요일'
+        when h.holidayseq is not null then h.holidayname
+        when h.holidayseq is null and t.attendanceseq is null then '결석'
+        else t.attendancest
+    end as "상태"
+from vwDate v
+    left outer join attendance t
+        on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
+            left outer join holiday h
+                on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
+                    order by v.regdate asc;   
