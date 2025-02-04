@@ -127,3 +127,21 @@ update SGRADE set SGRADERW = '너무 좋아요' where SGRADESEQ=1;
 delete from SGRADE where SGRADESEQ=1;
 
 ROLLBACK;     
+
+
+
+--SQL쿼리문
+-- B02
+
+--과정명 관리
+--1. 입력
+insert into Course(courseSeq,courseName) values (course_seq.NEXTVAL, q'[AWS와 Docker & Kubernetes를 활용한 Java Full-Stack 개발자 양성과정]');
+
+
+--2. 출력
+SELECT COURSENAME AS "과정명" 
+FROM COURSE;
+
+
+
+
