@@ -103,7 +103,7 @@ where studentseq=1;
 
 
 /* 등원 추가 */
-sINSERT INTO attendance 
+INSERT INTO attendance 
 VALUES (
     attendance_seq.nextval, 
     1, 
