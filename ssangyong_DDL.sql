@@ -7,12 +7,6 @@ END;
 
 
 
-DROP INDEX PK_Admin;
-
-select * from tabs;
-
-drop table TBLAGEGRADE;
-
 
 /* 관리자 */
 CREATE TABLE Admin (
@@ -21,16 +15,6 @@ CREATE TABLE Admin (
 	AdminTel VARCHAR2(30) NOT NULL, /* 전화번호 */
 	AdminPw NUMBER NOT NULL /* 주민번호뒷자리 */
 );
-
-COMMENT ON TABLE Admin IS '관리자';
-
-COMMENT ON COLUMN Admin.AdminSeq IS '관리자번호';
-
-COMMENT ON COLUMN Admin.AdminName IS '관리자명';
-
-COMMENT ON COLUMN Admin.AdminTel IS '전화번호';
-
-COMMENT ON COLUMN Admin.AdminPw IS '주민번호뒷자리';
 
 CREATE UNIQUE INDEX PK_Admin
 	ON Admin (
@@ -44,7 +28,6 @@ ALTER TABLE Admin
 			AdminSeq
 		);
 
-DROP INDEX PK_holiday;
 
 /* 공휴일 */
 CREATE TABLE holiday (
@@ -52,14 +35,6 @@ CREATE TABLE holiday (
 	holidayDate DATE, /* 날짜 */
 	holidayName VARCHAR2(100) /* 공휴일명 */
 );
-
-COMMENT ON TABLE holiday IS '공휴일';
-
-COMMENT ON COLUMN holiday.holidaySeq IS '공휴일번호';
-
-COMMENT ON COLUMN holiday.holidayDate IS '날짜';
-
-COMMENT ON COLUMN holiday.holidayName IS '공휴일명';
 
 CREATE UNIQUE INDEX PK_holiday
 	ON holiday (
@@ -73,8 +48,6 @@ ALTER TABLE holiday
 			holidaySeq
 		);
 
-DROP INDEX PK_teacher;
-
 /* 교사 */
 CREATE TABLE teacher (
 	teacherSeq NUMBER NOT NULL, /* 교사번호 */
@@ -82,16 +55,6 @@ CREATE TABLE teacher (
 	teacherPw NUMBER, /* 주민번호뒷자리 */
 	teacherTel VARCHAR2(30) /* 전화번호 */
 );
-
-COMMENT ON TABLE teacher IS '교사';
-
-COMMENT ON COLUMN teacher.teacherSeq IS '교사번호';
-
-COMMENT ON COLUMN teacher.teacherName IS '교사명';
-
-COMMENT ON COLUMN teacher.teacherPw IS '주민번호뒷자리';
-
-COMMENT ON COLUMN teacher.teacherTel IS '전화번호';
 
 CREATE UNIQUE INDEX PK_teacher
 	ON teacher (
@@ -105,7 +68,6 @@ ALTER TABLE teacher
 			teacherSeq
 		);
         
-DROP INDEX PK_book;
 
 /* 교재 */
 CREATE TABLE book (
@@ -115,18 +77,6 @@ CREATE TABLE book (
 	bookAuthor VARCHAR2(100), /* 저자 */
 	bookYear DATE /* 발행연도 */
 );
-
-COMMENT ON TABLE book IS '교재';
-
-COMMENT ON COLUMN book.bookSeq IS '교재번호';
-
-COMMENT ON COLUMN book.bookName IS '교재명';
-
-COMMENT ON COLUMN book.bookPublisher IS '출판사명';
-
-COMMENT ON COLUMN book.bookAuthor IS '저자';
-
-COMMENT ON COLUMN book.bookYear IS '발행연도';
 
 CREATE UNIQUE INDEX PK_book
 	ON book (
@@ -141,7 +91,6 @@ ALTER TABLE book
 		);
 
 
-DROP INDEX PK_subject;
 
 /* 과목 */
 CREATE TABLE subject (
@@ -149,14 +98,6 @@ CREATE TABLE subject (
 	subjectName VARCHAR2(1000) NOT NULL, /* 과목명 */
 	subjectEsn VARCHAR2(10) DEFAULT '선택' NOT NULL /* 필수여부(필수,선택) */
 );
-
-COMMENT ON TABLE subject IS '과목';
-
-COMMENT ON COLUMN subject.subjectSeq IS '과목번호';
-
-COMMENT ON COLUMN subject.subjectName IS '과목명';
-
-COMMENT ON COLUMN subject.subjectEsn IS '필수여부(필수,선택)';
 
 CREATE UNIQUE INDEX PK_subject
 	ON subject (
@@ -169,8 +110,7 @@ ALTER TABLE subject
 		PRIMARY KEY (
 			subjectSeq
 		);
-     
-DROP INDEX PK_sbjectBook;
+
 
 /* 과목별교재 */
 CREATE TABLE sbjectBook (
@@ -178,14 +118,6 @@ CREATE TABLE sbjectBook (
 	subjectSeq NUMBER NOT NULL, /* 과목번호 */
 	bookSeq NUMBER NOT NULL /* 교재번호 */
 );
-
-COMMENT ON TABLE sbjectBook IS '과목별교재';
-
-COMMENT ON COLUMN sbjectBook.sbjectBookSeq IS '과목별교재번호';
-
-COMMENT ON COLUMN sbjectBook.subjectSeq IS '과목번호';
-
-COMMENT ON COLUMN sbjectBook.bookSeq IS '교재번호';
 
 CREATE UNIQUE INDEX PK_sbjectBook
 	ON sbjectBook (
@@ -219,7 +151,6 @@ ALTER TABLE sbjectBook
 			bookSeq
 		);
         
-DROP INDEX tSubject;
 
 /* 교사가능과목 */
 CREATE TABLE tSubject (
@@ -227,14 +158,6 @@ CREATE TABLE tSubject (
 	teacherSeq NUMBER NOT NULL, /* 교사번호 */
 	subjectSeq NUMBER NOT NULL /* 과목번호 */
 );
-
-COMMENT ON TABLE tSubject IS '교사가능과목';
-
-COMMENT ON COLUMN tSubject.tSubjectSeq IS '교사가능과목번호';
-
-COMMENT ON COLUMN tSubject.teacherSeq IS '교사번호';
-
-COMMENT ON COLUMN tSubject.subjectSeq IS '과목번호';
 
 CREATE UNIQUE INDEX tSubject
 	ON tSubject (
@@ -268,7 +191,6 @@ ALTER TABLE tSubject
 			subjectSeq
 		);
         
-DROP INDEX PK_clsRoom;
 
 /* 강의실 */
 CREATE TABLE clsRoom (
@@ -276,14 +198,6 @@ CREATE TABLE clsRoom (
 	clsRoomName VARCHAR(20) NOT NULL, /* 강의실명 */
 	clsRoomPpl NUMBER NOT NULL /* 강의실인원 */
 );
-
-COMMENT ON TABLE clsRoom IS '강의실';
-
-COMMENT ON COLUMN clsRoom.clsRoomSeq IS '강의실번호';
-
-COMMENT ON COLUMN clsRoom.clsRoomName IS '강의실명';
-
-COMMENT ON COLUMN clsRoom.clsRoomPpl IS '강의실인원';
 
 CREATE UNIQUE INDEX PK_clsRoom
 	ON clsRoom (
@@ -298,19 +212,12 @@ ALTER TABLE clsRoom
 		);
 
 
-DROP INDEX PK_Course;
 
 /* 과정 */
 CREATE TABLE Course (
 	courseSeq NUMBER NOT NULL, /* 과정번호 */
 	courseName VARCHAR2(1000) NOT NULL /* 과정명 */
 );
-
-COMMENT ON TABLE Course IS '과정';
-
-COMMENT ON COLUMN Course.courseSeq IS '과정번호';
-
-COMMENT ON COLUMN Course.courseName IS '과정명';
 
 CREATE UNIQUE INDEX PK_Course
 	ON Course (
@@ -324,7 +231,6 @@ ALTER TABLE Course
 			courseSeq
 		);
         
-DROP INDEX PK_student;
 
 /* 교육생 */
 CREATE TABLE student (
@@ -334,18 +240,6 @@ CREATE TABLE student (
 	studentTel VARCHAR2(30), /* 전화번호 */
 	studentDate DATE DEFAULT sysdate /* 등록일 */
 );
-
-COMMENT ON TABLE student IS '교육생';
-
-COMMENT ON COLUMN student.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN student.studentName IS '이름';
-
-COMMENT ON COLUMN student.studentPw IS '주민번호뒷자리';
-
-COMMENT ON COLUMN student.studentTel IS '전화번호';
-
-COMMENT ON COLUMN student.studentDate IS '등록일';
 
 CREATE UNIQUE INDEX PK_student
 	ON student (
@@ -367,9 +261,6 @@ ALTER TABLE student
         
         
         
-        
-DROP INDEX PK_stStatus;
-
 /* 교육생상태리스트 */
 CREATE TABLE stStatus (
 	stStatusSeq NUMBER NOT NULL, /* 교육생상태리스트번호 */
@@ -377,16 +268,6 @@ CREATE TABLE stStatus (
 	status VARCHAR2(50), /* 상태(수료,중도탈락) */
 	stStatusDate DATE /* 날짜(수료,중도탈락) */
 );
-
-COMMENT ON TABLE stStatus IS '교육생상태리스트';
-
-COMMENT ON COLUMN stStatus.stStatusSeq IS '교육생상태리스트번호';
-
-COMMENT ON COLUMN stStatus.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN stStatus.status IS '상태(수료,중도탈락)';
-
-COMMENT ON COLUMN stStatus.stStatusDate IS '날짜(수료,중도탈락)';
 
 CREATE UNIQUE INDEX PK_stStatus
 	ON stStatus (
@@ -410,7 +291,7 @@ ALTER TABLE stStatus
 			studentSeq
 		);
         
-DROP INDEX PK_score;
+
 
 /* 과목성적 */
 CREATE TABLE score (
@@ -422,22 +303,6 @@ CREATE TABLE score (
 	attendanceScore NUMBER, /* 출석점수 */
 	totalScore NUMBER /* 총점수 */
 );
-
-COMMENT ON TABLE score IS '과목성적';
-
-COMMENT ON COLUMN score.scoreSeq IS '과목성적번호';
-
-COMMENT ON COLUMN score.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN score.subjectSeq IS '과목번호';
-
-COMMENT ON COLUMN score.writingScore IS '필기점수';
-
-COMMENT ON COLUMN score.realScore IS '실기점수';
-
-COMMENT ON COLUMN score.attendanceScore IS '출석점수';
-
-COMMENT ON COLUMN score.totalScore IS '총점수';
 
 CREATE UNIQUE INDEX PK_score
 	ON score (
@@ -471,7 +336,6 @@ ALTER TABLE score
 			subjectSeq
 		);
         
-DROP INDEX PK_money;
 
 /* 지원금 */
 CREATE TABLE money (
@@ -480,16 +344,6 @@ CREATE TABLE money (
 	moneyMonth DATE, /* 월 */
 	receivedMoney NUMBER /* 지원금 */
 );
-
-COMMENT ON TABLE money IS '지원금';
-
-COMMENT ON COLUMN money.moneySeq IS '지원금번호';
-
-COMMENT ON COLUMN money.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN money.moneyMonth IS '월';
-
-COMMENT ON COLUMN money.receivedMoney IS '지원금';
 
 CREATE UNIQUE INDEX PK_money
 	ON money (
@@ -512,8 +366,7 @@ ALTER TABLE money
 		REFERENCES student (
 			studentSeq
 		);
-        
-DROP INDEX PK_test;
+
 
 /* 시험정보 */
 CREATE TABLE test (
@@ -524,20 +377,6 @@ CREATE TABLE test (
 	testContext VARCHAR2(3000), /* 시험문제 */
 	testDate DATE /* 날짜 */
 );
-
-COMMENT ON TABLE test IS '시험정보';
-
-COMMENT ON COLUMN test.testSeq IS '시험정보번호';
-
-COMMENT ON COLUMN test.subjectSeq IS '과목번호';
-
-COMMENT ON COLUMN test.teacherSeq IS '교사번호';
-
-COMMENT ON COLUMN test.testType IS '시험종류(필기,실기)';
-
-COMMENT ON COLUMN test.testContext IS '시험문제';
-
-COMMENT ON COLUMN test.testDate IS '날짜';
 
 CREATE UNIQUE INDEX PK_test
 	ON test (
@@ -570,8 +409,7 @@ ALTER TABLE test
 		REFERENCES subject (
 			subjectSeq
 		);
-        
-DROP INDEX PK_process;
+
 
 /* 개설과정 */
 CREATE TABLE process (
@@ -583,22 +421,6 @@ CREATE TABLE process (
 	processEDate DATE, /* 과정종료날짜 */
 	processCount NUMBER /* 수강정원 */
 );
-
-COMMENT ON TABLE process IS '개설과정';
-
-COMMENT ON COLUMN process.processSeq IS '개설과정번호';
-
-COMMENT ON COLUMN process.courseSeq IS '과정번호';
-
-COMMENT ON COLUMN process.clsRoomSeq IS '강의실번호';
-
-COMMENT ON COLUMN process.teacherSeq IS '교사번호';
-
-COMMENT ON COLUMN process.processSDate IS '과정시작날짜';
-
-COMMENT ON COLUMN process.processEDate IS '과정종료날짜';
-
-COMMENT ON COLUMN process.processCount IS '수강정원';
 
 CREATE UNIQUE INDEX PK_process
 	ON process (
@@ -646,7 +468,97 @@ ALTER TABLE process
         
         
             
-DROP INDEX PK_studentCls;
+
+
+
+
+
+
+/* 개설과정과목 */
+CREATE TABLE prcSubject (
+	prcSubjectSeq NUMBER NOT NULL, /* 개설과정과목번호 */
+	processSeq NUMBER NOT NULL, /* 개설과정번호 */
+	subjectSeq NUMBER NOT NULL, /* 과목번호 */
+	prcSubjectSDate DATE, /* 과목시작날짜 */
+	prcSubjectEDate DATE /* 과목종료날짜 */
+);
+
+CREATE UNIQUE INDEX PK_prcSubject
+	ON prcSubject (
+		prcSubjectSeq ASC
+	);
+
+ALTER TABLE prcSubject
+	ADD
+		CONSTRAINT PK_prcSubject
+		PRIMARY KEY (
+			prcSubjectSeq
+		);
+
+ALTER TABLE prcSubject
+	ADD
+		CONSTRAINT FK_process_TO_prcSubject
+		FOREIGN KEY (
+			processSeq
+		)
+		REFERENCES process (
+			processSeq
+		);
+
+ALTER TABLE prcSubject
+	ADD
+		CONSTRAINT FK_subject_TO_prcSubject
+		FOREIGN KEY (
+			subjectSeq
+		)
+		REFERENCES subject (
+			subjectSeq
+		);
+        
+
+
+/* 과목배점 */
+CREATE TABLE scoreAllot (
+	scoreAllotSeq NUMBER NOT NULL, /* 과목배점번호 */
+	prcSubjectSeq NUMBER NOT NULL, /* 개설과정과목번호 */
+	teacherSeq NUMBER NOT NULL, /* 교사번호 */
+	attendAllot NUMBER, /* 출석배점 */
+	writingAllot NUMBER, /* 필기배점 */
+	realAllot NUMBER /* 실기배점 */
+);
+
+CREATE UNIQUE INDEX PK_scoreAllot
+	ON scoreAllot (
+		scoreAllotSeq ASC
+	);
+
+ALTER TABLE scoreAllot
+	ADD
+		CONSTRAINT PK_scoreAllot
+		PRIMARY KEY (
+			scoreAllotSeq
+		);
+
+ALTER TABLE scoreAllot
+	ADD
+		CONSTRAINT FK_teacher_TO_scoreAllot
+		FOREIGN KEY (
+			teacherSeq
+		)
+		REFERENCES teacher (
+			teacherSeq
+		);
+
+ALTER TABLE scoreAllot
+	ADD
+		CONSTRAINT FK_prcSubject_TO_scoreAllot
+		FOREIGN KEY (
+			prcSubjectSeq
+		)
+		REFERENCES prcSubject (
+			prcSubjectSeq
+		);
+
 
 /* 교육생수강정보 */
 CREATE TABLE studentCls (
@@ -654,14 +566,6 @@ CREATE TABLE studentCls (
 	studentSeq NUMBER NOT NULL, /* 교육생번호 */
 	processSeq NUMBER NOT NULL /* 개설과정번호 */
 );
-
-COMMENT ON TABLE studentCls IS '교육생수강정보';
-
-COMMENT ON COLUMN studentCls.studentClsSeq IS '교육생수강정보번호 ';
-
-COMMENT ON COLUMN studentCls.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN studentCls.processSeq IS '개설과정번호';
 
 SELECT constraint_name, constraint_type
 FROM user_constraints
@@ -700,138 +604,12 @@ ALTER TABLE studentCls
 		);        
         
 --
-
-        
-        
-        
-        
-        
-        
-DROP INDEX PK_prcSubject;
-
-/* 개설과정과목 */
-CREATE TABLE prcSubject (
-	prcSubjectSeq NUMBER NOT NULL, /* 개설과정과목번호 */
-	processSeq NUMBER NOT NULL, /* 개설과정번호 */
-	subjectSeq NUMBER NOT NULL, /* 과목번호 */
-	prcSubjectSDate DATE, /* 과목시작날짜 */
-	prcSubjectEDate DATE /* 과목종료날짜 */
-);
-
-COMMENT ON TABLE prcSubject IS '개설과정과목';
-
-COMMENT ON COLUMN prcSubject.prcSubjectSeq IS '개설과정과목번호';
-
-COMMENT ON COLUMN prcSubject.processSeq IS '개설과정번호';
-
-COMMENT ON COLUMN prcSubject.subjectSeq IS '과목번호';
-
-COMMENT ON COLUMN prcSubject.prcSubjectSDate IS '과목시작날짜';
-
-COMMENT ON COLUMN prcSubject.prcSubjectEDate IS '과목종료날짜';
-
-CREATE UNIQUE INDEX PK_prcSubject
-	ON prcSubject (
-		prcSubjectSeq ASC
-	);
-
-ALTER TABLE prcSubject
-	ADD
-		CONSTRAINT PK_prcSubject
-		PRIMARY KEY (
-			prcSubjectSeq
-		);
-
-ALTER TABLE prcSubject
-	ADD
-		CONSTRAINT FK_process_TO_prcSubject
-		FOREIGN KEY (
-			processSeq
-		)
-		REFERENCES process (
-			processSeq
-		);
-
-ALTER TABLE prcSubject
-	ADD
-		CONSTRAINT FK_subject_TO_prcSubject
-		FOREIGN KEY (
-			subjectSeq
-		)
-		REFERENCES subject (
-			subjectSeq
-		);
-        
-DROP INDEX PK_scoreAllot;
-
-/* 과목배점 */
-CREATE TABLE scoreAllot (
-	scoreAllotSeq NUMBER NOT NULL, /* 과목배점번호 */
-	prcSubjectSeq NUMBER NOT NULL, /* 개설과정과목번호 */
-	teacherSeq NUMBER NOT NULL, /* 교사번호 */
-	attendAllot NUMBER, /* 출석배점 */
-	writingAllot NUMBER, /* 필기배점 */
-	realAllot NUMBER /* 실기배점 */
-);
-
-COMMENT ON TABLE scoreAllot IS '과목배점';
-
-COMMENT ON COLUMN scoreAllot.scoreAllotSeq IS '과목배점번호';
-
-COMMENT ON COLUMN scoreAllot.prcSubjectSeq IS '개설과정과목번호';
-
-COMMENT ON COLUMN scoreAllot.teacherSeq IS '교사번호';
-
-COMMENT ON COLUMN scoreAllot.attendAllot IS '출석배점';
-
-COMMENT ON COLUMN scoreAllot.writingAllot IS '필기배점';
-
-COMMENT ON COLUMN scoreAllot.realAllot IS '실기배점';
-
-CREATE UNIQUE INDEX PK_scoreAllot
-	ON scoreAllot (
-		scoreAllotSeq ASC
-	);
-
-ALTER TABLE scoreAllot
-	ADD
-		CONSTRAINT PK_scoreAllot
-		PRIMARY KEY (
-			scoreAllotSeq
-		);
-
-ALTER TABLE scoreAllot
-	ADD
-		CONSTRAINT FK_teacher_TO_scoreAllot
-		FOREIGN KEY (
-			teacherSeq
-		)
-		REFERENCES teacher (
-			teacherSeq
-		);
-
-ALTER TABLE scoreAllot
-	ADD
-		CONSTRAINT FK_prcSubject_TO_scoreAllot
-		FOREIGN KEY (
-			prcSubjectSeq
-		)
-		REFERENCES prcSubject (
-			prcSubjectSeq
-		);
-        
 --=========================================================================================================================================================        
 --=========================================================================================================================================================
 -- 나중에 만들 기능관련 테이블 
 --=========================================================================================================================================================        
 --=========================================================================================================================================================
 
--- 교사평가
-DROP INDEX PK_tGrade;
-
-/* 교사평가 */
-DROP TABLE tGrade 
-	CASCADE CONSTRAINTS;
 
 /* 교사평가 */
 CREATE TABLE tGrade (
@@ -841,18 +619,6 @@ CREATE TABLE tGrade (
 	tGradeScore NUMBER, /* 점수(1~10) */
 	tGradeRw VARCHAR2(1000) /* 한줄평 */
 );
-
-COMMENT ON TABLE tGrade IS '교사평가';
-
-COMMENT ON COLUMN tGrade.tGradeSeq IS '교사평가번호';
-
-COMMENT ON COLUMN tGrade.teacherSeq IS '교사번호';
-
-COMMENT ON COLUMN tGrade.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN tGrade.tGradeScore IS '점수(1~10)';
-
-COMMENT ON COLUMN tGrade.tGradeRw IS '한줄평';
 
 CREATE UNIQUE INDEX PK_tGrade
 	ON tGrade (
@@ -886,13 +652,7 @@ ALTER TABLE tGrade
 			studentSeq
 		);
         
-        
--- 과정평가
-DROP INDEX PK_cGrade;
 
-/* 과정평가 */
-DROP TABLE cGrade 
-	CASCADE CONSTRAINTS;
 
 /* 과정평가 */
 CREATE TABLE cGrade (
@@ -902,18 +662,6 @@ CREATE TABLE cGrade (
 	cGradeScore NUMBER, /* 점수(1~10) */
 	cGradeRw VARCHAR2(1000) /* 한줄평 */
 );
-
-COMMENT ON TABLE cGrade IS '과정평가';
-
-COMMENT ON COLUMN cGrade.cGradeSeq IS '과정평가번호';
-
-COMMENT ON COLUMN cGrade.processSeq IS '개설과정번호';
-
-COMMENT ON COLUMN cGrade.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN cGrade.cGradeScore IS '점수(1~10)';
-
-COMMENT ON COLUMN cGrade.cGradeRw IS '한줄평';
 
 CREATE UNIQUE INDEX PK_cGrade
 	ON cGrade (
@@ -946,13 +694,7 @@ ALTER TABLE cGrade
 		REFERENCES process (
 			processSeq
 		);
-        
--- 교육생 평가
-DROP INDEX PK_sGrade;
 
-/* 교육생평가 */
-DROP TABLE sGrade 
-	CASCADE CONSTRAINTS;
 
 /* 교육생평가 */
 CREATE TABLE sGrade (
@@ -962,18 +704,6 @@ CREATE TABLE sGrade (
 	sGradeScore NUMBER, /* 학생평균점수 */
 	sGradeRw VARCHAR2(1000) /* 한줄평 */
 );
-
-COMMENT ON TABLE sGrade IS '교육생평가';
-
-COMMENT ON COLUMN sGrade.sGradeSeq IS '교육생평가번호';
-
-COMMENT ON COLUMN sGrade.teacherSeq IS '교사번호';
-
-COMMENT ON COLUMN sGrade.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN sGrade.sGradeScore IS '학생평균점수';
-
-COMMENT ON COLUMN sGrade.sGradeRw IS '한줄평';
 
 CREATE UNIQUE INDEX PK_sGrade
 	ON sGrade (
@@ -1007,12 +737,6 @@ ALTER TABLE sGrade
 			teacherSeq
 		);
         
--- 자격증
-DROP INDEX PK_crtf;
-
-/* 자격증 */
-DROP TABLE crtf 
-	CASCADE CONSTRAINTS;
 
 /* 자격증 */
 CREATE TABLE crtf (
@@ -1020,14 +744,6 @@ CREATE TABLE crtf (
 	crtfName VARCHAR2(200) NOT NULL, /* 자격증명 */
 	crtfService VARCHAR2(200) /* 인증기관 */
 );
-
-COMMENT ON TABLE crtf IS '자격증';
-
-COMMENT ON COLUMN crtf.crtfSeq IS '자격증번호';
-
-COMMENT ON COLUMN crtf.crtfName IS '자격증명';
-
-COMMENT ON COLUMN crtf.crtfService IS '인증기관';
 
 CREATE UNIQUE INDEX PK_crtf
 	ON crtf (
@@ -1041,12 +757,6 @@ ALTER TABLE crtf
 			crtfSeq
 		);
         
--- 교육생 자격증
-DROP INDEX PK_studentCrtf;
-
-/* 교육생자격증 */
-DROP TABLE studentCrtf 
-	CASCADE CONSTRAINTS;
 
 /* 교육생자격증 */
 CREATE TABLE studentCrtf (
@@ -1055,16 +765,6 @@ CREATE TABLE studentCrtf (
 	studentSeq NUMBER NOT NULL, /* 교육생번호 */
 	studentCrtfDate DATE /* 취득일 */
 );
-
-COMMENT ON TABLE studentCrtf IS '교육생자격증';
-
-COMMENT ON COLUMN studentCrtf.studentCrtfSeq IS '교육생자격증번호';
-
-COMMENT ON COLUMN studentCrtf.crtfSeq IS '자격증번호';
-
-COMMENT ON COLUMN studentCrtf.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN studentCrtf.studentCrtfDate IS '취득일';
 
 CREATE UNIQUE INDEX PK_studentCrtf
 	ON studentCrtf (
@@ -1098,25 +798,13 @@ ALTER TABLE studentCrtf
 			studentSeq
 		);
         
--- 주요기술스택
 
-DROP INDEX PK_tech;
-
-/* 주요기술스택 */
-DROP TABLE tech 
-	CASCADE CONSTRAINTS;
 
 /* 주요기술스택 */
 CREATE TABLE tech (
 	techSeq NUMBER NOT NULL, /* 주요기술스택번호 */
 	techName VARCHAR2(200) /* 기술명(자바.파이썬,AWS등) */
 );
-
-COMMENT ON TABLE tech IS '주요기술스택';
-
-COMMENT ON COLUMN tech.techSeq IS '주요기술스택번호';
-
-COMMENT ON COLUMN tech.techName IS '기술명(자바.파이썬,AWS등)';
 
 CREATE UNIQUE INDEX PK_tech
 	ON tech (
@@ -1130,12 +818,7 @@ ALTER TABLE tech
 			techSeq
 		);
         
--- 팀
-DROP INDEX PK_team;
 
-/* 팀 */
-DROP TABLE team 
-	CASCADE CONSTRAINTS;
 
 /* 팀 */
 CREATE TABLE team (
@@ -1144,16 +827,6 @@ CREATE TABLE team (
 	studentSeq NUMBER NOT NULL, /* 교육생번호 */
 	teamName VARCHAR2(200) /* 팀이름 */
 );
-
-COMMENT ON TABLE team IS '팀';
-
-COMMENT ON COLUMN team.teamSeq IS '팀번호';
-
-COMMENT ON COLUMN team.testSeq IS '시험정보번호';
-
-COMMENT ON COLUMN team.studentSeq IS '교육생번호';
-
-COMMENT ON COLUMN team.teamName IS '팀이름';
 
 CREATE UNIQUE INDEX PK_team
 	ON team (
@@ -1187,9 +860,6 @@ ALTER TABLE team
 			studentSeq
 		);
         
--- 기업
-
-DROP INDEX PK_enter;
 
 -- 기업
 CREATE TABLE enter (
@@ -1201,22 +871,6 @@ CREATE TABLE enter (
     enterLocation VARCHAR2(100),-- / 위치 /
     enterSalary NUMBER --/ 초봉
 );
-
-COMMENT ON TABLE enter IS '기업';
-
-COMMENT ON COLUMN enter.enterSeq IS '기업번호';
-
-COMMENT ON COLUMN enter.crtfSeq IS '자격증번호';
-
-COMMENT ON COLUMN enter.techSeq IS '주요기술스택번호';
-
-COMMENT ON COLUMN enter.enterName IS '기업명';
-
-COMMENT ON COLUMN enter.enterBuseo IS '부서';
-
-COMMENT ON COLUMN enter.enterLocation IS '위치';
-
-COMMENT ON COLUMN enter.enterSalary IS '초봉';
 
 CREATE UNIQUE INDEX PK_enter
     ON enter (
@@ -1251,14 +905,6 @@ ALTER TABLE enter
         );
 
 
--- 프로젝트
-
-DROP INDEX PK_project;
-
-/* 프로젝트 */
-DROP TABLE project 
-	CASCADE CONSTRAINTS;
-
 /* 프로젝트 */
 CREATE TABLE project (
 	projectSeq NUMBER NOT NULL, /* 프로젝트번호 */
@@ -1268,20 +914,6 @@ CREATE TABLE project (
 	projectDate DATE, /* 수행기간 */
 	projectContent VARCHAR2(2000) /* 프로젝트설명 */
 );
-
-COMMENT ON TABLE project IS '프로젝트';
-
-COMMENT ON COLUMN project.projectSeq IS '프로젝트번호';
-
-COMMENT ON COLUMN project.teamSeq IS '팀번호';
-
-COMMENT ON COLUMN project.techSeq IS '주요기술스택번호';
-
-COMMENT ON COLUMN project.projectName IS '프로젝트명';
-
-COMMENT ON COLUMN project.projectDate IS '수행기간';
-
-COMMENT ON COLUMN project.projectContent IS '프로젝트설명';
 
 CREATE UNIQUE INDEX PK_project
 	ON project (
@@ -1314,11 +946,6 @@ ALTER TABLE project
 		REFERENCES tech (
 			techSeq
 		);
-
-
-/* 츨결 */
-DROP TABLE attendance 
-	CASCADE CONSTRAINTS;
 
 /* 츨결 */
 CREATE TABLE attendance (

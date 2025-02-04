@@ -109,8 +109,8 @@ VALUES (attendance_seq.nextval, 1, sysdate, TO_DATE('09:00', 'HH24:MI'), TO_DATE
                           
 
 /* D-04 교육생 출결조회 기능 */
-/*조회*/
-create or replace view vwDate
+/* 다닌날 전체 조회 */
+create or replace view vwTotalDate
 as
 select
     to_date('2024-07-03', 'yyyy-mm-dd') + level - 1 as regdate
@@ -127,11 +127,35 @@ select
         when h.holidayseq is null and t.attendanceseq is null then '결석'
         else t.attendancest
     end as "상태"
-from vwDate v
+from vwTotalDate v
     left outer join attendance t
         on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
                     order by v.regdate asc;
 
-                                                                                        
+                       
+/*7월 조회*/
+create or replace view vwMonth
+as
+select
+    to_date('2024-07-03', 'yyyy-mm-dd') + level - 1 as regdate
+from dual
+    connect by level <= (to_date('2024-07-31', 'yyyy-mm-dd')
+                            - to_date('2024-07-03', 'yyyy-mm-dd') + 1);
+
+select 
+    v.regdate as "날짜",
+    case
+        when to_char(v.regdate, 'd') = '1' then '일요일'
+        when to_char(v.regdate, 'd') = '7' then '토요일'
+        when h.holidayseq is not null then h.holidayname
+        when h.holidayseq is null and t.attendanceseq is null then '결석'
+        else t.attendancest
+    end as "상태"
+from vwMonth v
+    left outer join attendance t
+        on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
+            left outer join holiday h
+                on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
+                    order by v.regdate asc;                                                                 
