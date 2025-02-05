@@ -46,7 +46,15 @@ select * from tsubject ts inner join test t on t.teacherseq=ts.teacherseq where 
 
 select * from score where studentseq=27;
 
-
+WITH student_test AS (
+    SELECT 
+        test.subjectseq, 
+        test.testtype, 
+        test.testdate, 
+        test.testcontext,
+        ROW_NUMBER() OVER (PARTITION BY test.subjectseq ORDER BY test.testdate DESC) AS rn
+    FROM test
+)
 select distinct
     pc.subjectseq as "과목 번호",
     s.subjectname as "과목 이름",
@@ -86,7 +94,134 @@ from prcsubject pc
                                                                             where t.teacherseq=1 and p.processseq=2 and scl.studentseq = 27
                                                                                 order by pc.prcsubjectsdate;
 
-                                            
+
+
+
+
+
+
+-- 중복 없앤것
+SELECT DISTINCT
+    pc.subjectseq AS "과목 번호",
+    s.subjectname AS "과목 이름",
+    pc.prcsubjectsdate AS "과목 시작 날짜",
+    pc.prcsubjectedate AS "과목 종료 날짜",
+    b.bookname AS "교재명",
+    t.teachername AS "교사명",
+    sa.attendallot AS "출석 배점",
+    sa.writingallot AS "필기 배점",
+    sa.realallot AS "실기 배점",
+    score.attendancescore AS "출석 점수",
+    score.writingscore AS "필기 점수",
+    score.realscore AS "실기 점수",
+    score.totalscore AS "총 점수",
+    test.testtype AS "시험 종류",
+    test.testdate AS "시험 날짜",
+    test.testcontext AS "시험 문제"
+FROM prcsubject pc
+    INNER JOIN process p ON p.processseq = pc.processseq
+    INNER JOIN subject s ON s.subjectseq = pc.subjectseq
+    INNER JOIN sbjectBook sb ON sb.subjectseq = pc.subjectseq
+    INNER JOIN book b ON b.bookseq = sb.bookseq
+    INNER JOIN teacher t ON t.teacherseq = p.teacherseq
+    INNER JOIN scoreallot sa ON sa.prcsubjectseq = pc.prcsubjectseq 
+    INNER JOIN studentcls scl ON scl.processseq = p.processseq
+    INNER JOIN score ON scl.studentseq = score.studentseq
+    LEFT JOIN test ON test.subjectseq = pc.subjectseq
+WHERE t.teacherseq = 1 
+  AND p.processseq = 2 
+  AND scl.studentseq = 27
+  AND test.testdate = (
+      SELECT min(testdate) 
+      FROM test t2 
+      WHERE t2.subjectseq = test.subjectseq
+  )
+ORDER BY pc.prcsubjectsdate;
+
+
+
+
+
+-----------------------------------------------------------------------------------
+--다시해보기
+-------------------------------------------------------------------------------------
+select * from subject; --과목번호
+select * from prcsubject; --과정번호(2), 과목번호, 과목시작,끝시간
+select * from prcsubject where processseq =2; --1~11
+select * from process;-- 과정번호, 교사번호
+select * from book; -- 교재번호, 교재이름
+select * from sbjectbook;-- 과목번호, 교재번호
+select * from teacher; --교사이름, 교사번호 (process)
+select * from test;--교사번호
+select * from scoreallot where teacherseq=1;
+select * from score where studentseq=27;
+select processseq from studentcls where studentseq=27; -- 과정번호 2가 나옴
+select teacherseq from process where processseq = (select processseq from studentcls where studentseq=27);-- 교사번호1가 나옴
+select * from process;
+
+
+select * from scoreallot sa inner join prcsubject pc on sa.prcsubjectseq=pc.prcsubjectseq where teacherseq=1;
+select * from scoreallot;
+select * from test where teacherseq=1;
+select * from score where studentseq=27;
+select * from score;
+
+-- 학생 번호가 27
+
+select 
+    pc.subjectseq as 과목번호,
+    sj.subjectname as 과목명,
+    pc.prcsubjectsdate||' ~ '||pc.prcsubjectedate as "시작날짜 ~ 종료날짜",
+    b.bookname as 교재명,
+    t.teachername as 교사명,
+    sa.attendallot as 출석배점,
+    sa.writingallot as 필기배점,
+    sa.realallot as 실기배점 /*,
+    score.writingscore as 필기점수,
+    score.realscore as 실기점수,
+    score.attendancescore as 출석점수,
+    score.totalscore as 총점수,
+    test.testtype as 시험유형,
+    test.testdate as 시험날짜,
+    test.testcontext as 시험문제*/
+from prcsubject pc
+    inner join subject sj on sj.subjectseq = pc.subjectseq
+    inner join sbjectbook sb on sb.subjectseq = pc.subjectseq
+    inner join book b on b.bookseq = sb.bookseq
+    inner join process p on p.processseq = pc.processseq
+    inner join teacher t on t.teacherseq = p.teacherseq
+    inner join scoreallot sa  on sa.prcsubjectseq=pc.prcsubjectseq
+    inner join test on test.teacherseq = t.teacherseq and pc.subjectseq=test.subjectseq
+    --inner join score on score.subjectseq=pc.subjectseq
+where pc.processseq=(select processseq from studentcls where studentseq=27) --과정번호 1임
+    and test.teacherseq=(select teacherseq from process where processseq = (select processseq from studentcls where studentseq=27));-- 교사번호가 1임
+
+select * from test inner join teacher t on  test.teacherseq = t.teacherseq
+    where test.teacherseq=(select teacherseq from process where processseq = (select processseq from studentcls where studentseq=27));                                    
+select * from prcsubject where processseq=2;
+select * from test where teacherseq=1;
+
+
+
+
+select * 
+from test 
+inner join prcsubject pc on pc.subjectseq=test.subjectseq 
+where test.teacherseq=1 and pc.processseq=2; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                             
 /* D-03 교육생 출결관리 기능 */
 /* 조회 */
