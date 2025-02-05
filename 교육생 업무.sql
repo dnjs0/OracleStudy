@@ -165,10 +165,10 @@ select * from scoreallot;
 select * from test where teacherseq=1;
 select * from score where studentseq=27;
 select * from score;
-
+---------------------------------------------
 -- 학생 번호가 27
 
-select 
+select
     pc.subjectseq as 과목번호,
     sj.subjectname as 과목명,
     pc.prcsubjectsdate||' ~ '||pc.prcsubjectedate as "시작날짜 ~ 종료날짜",
@@ -177,7 +177,6 @@ select
     sa.attendallot as 출석배점,
     sa.writingallot as 필기배점,
     sa.realallot as 실기배점 ,
-    test.testseq,
     score.writingscore as 필기점수,
     score.realscore as 실기점수,
     score.attendancescore as 출석점수,
@@ -197,9 +196,10 @@ from prcsubject pc
     inner join student st on st.studentseq =scl.studentseq
     inner join score on score.subjectseq=pc.subjectseq and score.studentseq = st.studentseq
 where st.studentseq=27 
-    and pc.processseq=(select processseq from studentcls where studentseq=27) --과정번호 1임
-    and test.teacherseq=(select teacherseq from process where processseq = (select processseq from studentcls where studentseq=27));-- 교사번호가 1임
-
+    and pc.processseq=(select processseq from studentcls where studentseq=27) --과정번호 2임
+    and test.teacherseq=(select teacherseq from process where processseq = (select processseq from studentcls where studentseq=27))-- 교사번호가 1임
+    and test.testdate BETWEEN p.processsdate AND p.processedate;
+---------------------------------------------------------------
 select * from subject;
 
 
@@ -210,18 +210,22 @@ inner join teacher t on  test.teacherseq = t.teacherseq
 
 select * from prcsubject where processseq=2;
 select * from test where teacherseq=1;
+select * from team where studentseq=27;
+
+select * from test 
+inner join team on test.testseq=team.testseq
+where test.teacherseq=1 and team.studentseq=27;
 
 
-
+---------------------
 SELECT 
     pc.*,  -- prcsubject의 모든 컬럼
     t.*    -- teacher의 모든 컬럼
 FROM prcsubject pc
-INNER JOIN teacher t ON t.teacherseq = (
-    SELECT teacherseq FROM process WHERE processseq = pc.processseq
-)
-WHERE pc.processseq = 2;
-
+INNER JOIN teacher t ON t.teacherseq = (SELECT teacherseq FROM process WHERE processseq = pc.processseq)
+WHERE pc.processseq = 2
+;
+---------------------
 
 
 
@@ -230,18 +234,32 @@ from test
 inner join prcsubject pc on pc.subjectseq=test.subjectseq 
 where test.teacherseq=1 and pc.processseq=2; 
 
+select * from test;
+select * from score where studentseq=27;--subjectseq
+
+select * from attendance;
+select * from process;
+select * from prcsubject ;
+select * from student where studentseq=27;
+select * from studentcls; 
+
+SELECT 
+    pc.*,  -- prcsubject의 모든 컬럼
+    t.* ,   -- teacher의 모든 컬럼
+    s.*
+FROM prcsubject pc
+INNER JOIN teacher t ON t.teacherseq = (
+    SELECT teacherseq FROM process WHERE processseq = pc.processseq
+)
+inner join score s on pc.subjectseq=s.subjectseq
+WHERE pc.processseq = 2 and s.studentseq=27;
 
 
 
+select * from prcSubject where processseq=2;
 
-
-
-
-
-
-
-
-
+select processsdate,processedate from process where processseq=2;
+select subjectseq, teacherseq,testdate from test where teacherseq=1;
 
                                             
 /* D-03 교육생 출결관리 기능 */
