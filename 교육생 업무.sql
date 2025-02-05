@@ -176,14 +176,15 @@ select
     t.teachername as 교사명,
     sa.attendallot as 출석배점,
     sa.writingallot as 필기배점,
-    sa.realallot as 실기배점 /*,
+    sa.realallot as 실기배점 ,
+    test.testseq,
     score.writingscore as 필기점수,
     score.realscore as 실기점수,
     score.attendancescore as 출석점수,
     score.totalscore as 총점수,
     test.testtype as 시험유형,
     test.testdate as 시험날짜,
-    test.testcontext as 시험문제*/
+    test.testcontext as 시험문제
 from prcsubject pc
     inner join subject sj on sj.subjectseq = pc.subjectseq
     inner join sbjectbook sb on sb.subjectseq = pc.subjectseq
@@ -192,14 +193,34 @@ from prcsubject pc
     inner join teacher t on t.teacherseq = p.teacherseq
     inner join scoreallot sa  on sa.prcsubjectseq=pc.prcsubjectseq
     inner join test on test.teacherseq = t.teacherseq and pc.subjectseq=test.subjectseq
-    --inner join score on score.subjectseq=pc.subjectseq
-where pc.processseq=(select processseq from studentcls where studentseq=27) --과정번호 1임
+    inner join studentcls scl on scl.processseq = p.processseq
+    inner join student st on st.studentseq =scl.studentseq
+    inner join score on score.subjectseq=pc.subjectseq and score.studentseq = st.studentseq
+where st.studentseq=27 
+    and pc.processseq=(select processseq from studentcls where studentseq=27) --과정번호 1임
     and test.teacherseq=(select teacherseq from process where processseq = (select processseq from studentcls where studentseq=27));-- 교사번호가 1임
 
-select * from test inner join teacher t on  test.teacherseq = t.teacherseq
+select * from subject;
+
+
+select * 
+from test 
+inner join teacher t on  test.teacherseq = t.teacherseq
     where test.teacherseq=(select teacherseq from process where processseq = (select processseq from studentcls where studentseq=27));                                    
+
 select * from prcsubject where processseq=2;
 select * from test where teacherseq=1;
+
+
+
+SELECT 
+    pc.*,  -- prcsubject의 모든 컬럼
+    t.*    -- teacher의 모든 컬럼
+FROM prcsubject pc
+INNER JOIN teacher t ON t.teacherseq = (
+    SELECT teacherseq FROM process WHERE processseq = pc.processseq
+)
+WHERE pc.processseq = 2;
 
 
 
