@@ -10,12 +10,12 @@ set serverout on;
 CREATE OR REPLACE PROCEDURE pInsertHoliday (
     pyear in number,
     pmonth in number,
-    pday in number
+    pday in number,
+    pHolidayName IN VARCHAR2
 )
 is
     vcount NUMBER;
     vholiday_date date;
-    vholiday_name varchar(50);
 BEGIN
 
     vholiday_date := TO_DATE(pyear || '-' || pmonth || '-' || pday, 'YYYY-MM-DD');
@@ -23,24 +23,21 @@ BEGIN
     SELECT COUNT(*) INTO vcount 
     FROM holiday 
     WHERE holidaydate = vholiday_date; 
-    
-    select holidayname into vholiday_name
-    from holiday
-    where holidaydate = vholiday_date;
 
     -- 날짜가 존재하면 예외 처리
     IF vcount > 0 THEN
-        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') ||' : 이날은 '|| vholiday_name||'입니다! 날짜를 올바르게 입력해주세요.');
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || ' : 이 날짜는 이미 등록된 휴일입니다! 다시 입력해주세요.');
     ELSE
-        INSERT INTO holiday VALUES (holiday_seq.NEXTVAL, TO_DATE('2024-07-15', 'YYYY-MM-DD'), '학원휴일');
-        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') ||' : 휴일이 정상적으로 추가되었습니다.');
+        INSERT INTO holiday VALUES (holiday_seq.NEXTVAL, vholiday_date, pHolidayName);
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || ' : 휴일(' || pHolidayName || ')이 정상적으로 추가되었습니다.');
     END IF;
 END pInsertHoliday;
 /
 
 -- 호출하기 매개변수 : 년,월,일
 begin
-    pInsertHoliday(2024,8,15);
+    pInsertHoliday(2024,12,5, '학원휴일');
 end;
 /
 
@@ -88,7 +85,7 @@ END pUpdateHoliday;
 
 -- 호출하기 매개변수 : 년,월,일,공휴일명
 begin
-    pUpdateHoliday(2024,7,15,'학원 쉬는날');
+    pUpdateHoliday(2024,12,5,'학원 쉬는날');
 end;
 /
 
@@ -132,7 +129,7 @@ BEGIN
         delete from holiday 
         WHERE holidaydate = vholiday_date;
         
-        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || '"의 휴일이 삭제되었습니다.');
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || '의 휴일이 삭제되었습니다.');
     
     ELSE
         DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || ' 해당 날짜의 휴일 정보가 없습니다!');
@@ -142,7 +139,7 @@ END pDeleteHoliday;
 
 -- 호출하기 매개변수 : 년,월,일
 begin
-    pDeleteHoliday(2024,7,14);
+    pDeleteHoliday(2024,12,5);
 end;
 /
 
@@ -241,49 +238,7 @@ end;
 
 
 
-
---==========================================================
-/*  회사 정보 view, pl/sql  */
---==========================================================
---view
-create or replace view vCompanyInfo
-as
-select 
-    e.enterName as "회사명" , 
-    e.enterBuseo as "업무내용", 
-    t.techName as "사용하는 주요 기술"
-from project p
-inner join enter e on e.techSeq = p.techSeq
-inner join tech t on e.techSeq = t.techSeq
-inner join team te on te.teamSeq = p.teamSeq
-inner join student s on s.studentSeq = te.studentSeq
-inner join studentCrtf sc on sc.studentSeq = s.studentSeq
-inner join crtf c on c.crtfSeq = sc.crtfSeq
-where s.studentname = '홍성준';
-
-
-
-SELECT * FROM vCompanyInfo;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+SET SERVEROUTPUT ON;
 
 
 
@@ -552,8 +507,9 @@ BEGIN
 END;
 /
 
-
-
+--오늘 날짜 조회, 출석있으면 삭제하고 실행
+SELECT * FROM ATTENDANCE WHERE ATTENDANCEDATE = TRUNC(SYSDATE) AND STUDENTSEQ=1;
+DELETE FROM ATTENDANCE WHERE  ATTENDANCEDATE = TRUNC(SYSDATE) AND STUDENTSEQ=1;
 ----------------------------------------------------------------
 
 --출석 입력하기, 등원 추가
@@ -800,7 +756,7 @@ END;
 
 
 --------------------------------------------------------------------------------
---2. 1번 학생의 7월달 출결 조회
+--2. 1번 학생의 특정 월(7월) 출결 조회
 -- 선언문
 CREATE OR REPLACE PROCEDURE pAttendanceStudentMonth(
     pstudentNum in STUDENT.studentseq%type,
@@ -866,7 +822,7 @@ END;
 /
 
 ---------------------------------------------------------------------------------
---3. 1번 학생의 날짜별 출결 조회
+--3. 1번 학생의 특정 날짜 출결 조회
 -- 선언문
 CREATE OR REPLACE PROCEDURE pAttendanceStudentDate(
     pstudentNum in STUDENT.studentseq%type,
