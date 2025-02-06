@@ -13,7 +13,8 @@ from dual
     connect by level <= (to_date('2025-01-03', 'yyyy-mm-dd')
                             - to_date('2024-07-03', 'yyyy-mm-dd') + 1);
 
-
+create or replace view vwDate2
+as
 select 
     v.regdate as "날짜",
     case
@@ -28,7 +29,11 @@ from vwDate v
         on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
+                where t.studentseq=1
                     order by v.regdate asc;
+                    
+select * from vwDate2;
+select * from attendance;
 
 /*수정*/
 update holiday set holidayname = '쉬는날' where holidayseq=16;

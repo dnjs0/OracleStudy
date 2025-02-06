@@ -3,6 +3,8 @@
 
 /* D-01 교육생 로그인 기능 */
 /* 조회 */
+create or replace view vwStudentLogin
+as
 select
     s.studentname as "학생 이름",
     s. studentpw as "비밀번호",
@@ -24,6 +26,8 @@ from student s
                                     where s.studentseq=1;
                     
                     
+select * from vwstudentlogin;
+
 
 
 /* D-02 교육생 개인성적정보 확인기능 */
@@ -31,7 +35,8 @@ from student s
 
 ---------------------------------------------
 -- 학생 번호가 27
-
+create or replace view vwStudentInfo
+as
 select
     pc.subjectseq as 과목번호,
     sj.subjectname as 과목명,
@@ -65,35 +70,28 @@ where st.studentseq=27
     and pc.processseq=(select processseq from studentcls where studentseq=27) --과정번호 2임
     and test.teacherseq=(select teacherseq from process where processseq = (select processseq from studentcls where studentseq=27))-- 교사번호가 1임
     and test.testdate BETWEEN p.processsdate AND p.processedate;
+    
+    
+    
+select * from vwstudentInfo;
 ---------------------------------------------------------------
 
 
 
-
+select * from attendance where studentseq=1 and attendancedate = sysdate;
 /* D-03 교육생 출결관리 기능 */
-/* 조회 */
-
-select * from attendance;
-
-select 
-    attendanceseq as "번호",
-    attendancedate as "날짜",
-    TO_char(attendancestime, 'HH24:MI') as "등원 시간",
-    to_char(attendanceetime, 'HH24:MI') as "하원 시간"
-from attendance
-where studentseq=1;
-
-
-/* 등원 추가 */
+/* 1번 학생의 등원 추가 */
 INSERT INTO attendance 
 VALUES (
     attendance_seq.nextval, 
-    1, 
+    1, --학생등원
+    1, --교육과정
     TRUNC(SYSDATE),  -- 날짜 (시간 00:00:00 초기화)
     SYSDATE,         -- 현재 시간으로 출근 기록
     NULL,            -- 퇴근 시간은 아직 없음
     '출석'
 );
+
 
 
 /* 수업종료 */
@@ -105,20 +103,42 @@ WHERE studentseq = 1
   AND attendanceetime IS NULL;      -- 아직 퇴근 기록이 없는 경우
 
 
-                          
+/* 오늘의 출결 상태 보기 */
+create or replace view vwTodayAttendance
+as
+select 
+    attendancedate as "오늘 날짜", 
+    TO_char(attendancestime, 'HH24:MI') as "등원 시간",
+    to_char(attendanceetime, 'HH24:MI') as "하원 시간"
+from attendance where attendancedate=to_char(SYSDATE);
+
+select * from vwTodayAttendance;
+
+
+
 
 /* D-04 교육생 출결조회 기능 */
+/* 조회 */
 /* 다닌날 전체 조회 */
+
+
+/* 날짜 뷰 만들기*/
 create or replace view vwTotalDate
 as
 select
     to_date('2024-07-03', 'yyyy-mm-dd') + level - 1 as regdate
 from dual
-    connect by level <= (to_date('2025-01-03', 'yyyy-mm-dd')
+    connect by level <= (to_date('2025-08-03', 'yyyy-mm-dd')
                             - to_date('2024-07-03', 'yyyy-mm-dd') + 1);
 
+
+/* 1번 학생 날짜 별 출결 뷰 만들기*/
+create or replace view vwStudentTotalDate
+as
 select 
     v.regdate as "날짜",
+    TO_char(t.attendancestime, 'HH24:MI') as "등원 시간",
+    to_char(t.attendanceetime, 'HH24:MI') as "하원 시간",
     case
         when to_char(v.regdate, 'd') = '1' then '일요일'
         when to_char(v.regdate, 'd') = '7' then '토요일'
@@ -126,12 +146,18 @@ select
         when h.holidayseq is null and t.attendanceseq is null then '결석'
         else t.attendancest
     end as "상태"
-from vwTotalDate v
+from vwDate v
     left outer join attendance t
         on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
+                where t.studentseq=1
                     order by v.regdate asc;
+
+select * from vwStudentDate;
+
+
+
 
                        
 /*7월 조회*/
@@ -143,6 +169,8 @@ from dual
     connect by level <= (to_date('2024-07-31', 'yyyy-mm-dd')
                             - to_date('2024-07-03', 'yyyy-mm-dd') + 1);
 
+create or replace view vwStudentMonth
+as
 select 
     v.regdate as "날짜",
     case
@@ -158,8 +186,10 @@ from vwMonth v
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
                     order by v.regdate asc;              
-                    
-                    
+
+select * from vwStudentMonth;                    
+
+
                     
 /* 특정 날짜 조회 */
 create or replace view vwDate
@@ -168,7 +198,10 @@ select
     to_date('2024-07-03', 'yyyy-mm-dd') regdate
 from dual;
 
-select s
+
+create or replace view vwStudentDate
+as
+select
     v.regdate as "날짜",
     case
         when to_char(v.regdate, 'd') = '1' then '일요일'
@@ -183,3 +216,5 @@ from vwDate v
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
                     order by v.regdate asc;   
+                    
+select * from vwStudentDate; 

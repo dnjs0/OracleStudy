@@ -553,6 +553,7 @@ END;
 /
 
 
+
 ----------------------------------------------------------------
 
 --출석 입력하기, 등원 추가
@@ -561,11 +562,17 @@ CREATE OR REPLACE PROCEDURE pInsertAttendance(
 )
 IS
     vstudentName student.studentname%TYPE;
+    vprocessnum number;
     vcount number;
 BEGIN
     select 
         studentname into vstudentName
     from student where studentseq = pstudentNum;
+    
+    
+    select DISTINCT
+        processSeq into vprocessnum
+    from attendance where studentseq = pstudentNum;
     
     -- 출석을 했는가 예외처리
     SELECT COUNT(*) 
@@ -581,16 +588,19 @@ BEGIN
     END IF;
     
     
+    
     INSERT INTO attendance (
         attendanceseq, 
-        studentseq, 
+        studentseq,
+        processseq,
         attendancedate, 
         attendancestime, 
         attendanceetime, 
         attendancest
     ) VALUES (
         attendance_seq.NEXTVAL,     
-        pstudentNum,               
+        pstudentNum, 
+        vprocessnum,
         TRUNC(SYSDATE),             -- 현재 날짜 (시간 00:00:00)
         SYSDATE,                    -- 현재 시간으로 출석 시간 기록
         NULL,                       -- 퇴근
@@ -606,7 +616,7 @@ EXCEPTION
     WHEN OTHERS THEN
         -- 에러 발생 시 롤백
         ROLLBACK;
-        DBMS_OUTPUT.PUT_LINE('오류 발생');
+        DBMS_OUTPUT.PUT_LINE('오류 발생'||SQLERRM);
 END ;
 /
 
