@@ -32,9 +32,7 @@ select * from vwstudentlogin;
 
 /* D-02 교육생 개인성적정보 확인기능 */
 /* 조회 */
-
----------------------------------------------
--- 학생 번호가 27
+-- 조회하는 학생 번호가 27
 create or replace view vwStudentInfo
 as
 select
@@ -130,6 +128,8 @@ select
 from dual
     connect by level <= (to_date('2025-08-03', 'yyyy-mm-dd')
                             - to_date('2024-07-03', 'yyyy-mm-dd') + 1);
+                            
+SELECT * FROM VWTOTALDATE;
 
 
 /* 1번 학생 날짜 별 출결 뷰 만들기*/
