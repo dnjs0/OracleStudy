@@ -13,6 +13,7 @@ from dual
     connect by level <= (to_date('2025-01-03', 'yyyy-mm-dd')
                             - to_date('2024-07-03', 'yyyy-mm-dd') + 1);
 
+
 select 
     v.regdate as "날짜",
     case

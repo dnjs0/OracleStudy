@@ -35,16 +35,18 @@ from student s
 select
     pc.subjectseq as 과목번호,
     sj.subjectname as 과목명,
-    pc.prcsubjectsdate||' ~ '||pc.prcsubjectedate as "시작날짜 ~ 종료날짜",
+    pc.prcsubjectsdate||' ~ '||pc.prcsubjectedate as "과목 진행 기간",
     b.bookname as 교재명,
     t.teachername as 교사명,
-    sa.attendallot as 출석배점,
-    sa.writingallot as 필기배점,
-    sa.realallot as 실기배점 ,
-    score.writingscore as 필기점수,
-    score.realscore as 실기점수,
+    sa.attendallot as "배점정보:출석",
+    sa.writingallot as "배점정보:필기",
+    sa.realallot as "배점정보:실기",
     score.attendancescore as 출석점수,
-    score.totalscore as 총점수,
+    CASE 
+        WHEN test.testtype = '실기' THEN score.realscore
+        WHEN test.testtype = '필기' THEN score.writingscore
+        ELSE 0
+    END  "과목 성적",
     test.testtype as 시험유형,
     test.testdate as 시험날짜,
     test.testcontext as 시험문제

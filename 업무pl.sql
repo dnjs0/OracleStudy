@@ -6,23 +6,282 @@ set serverout on;
 --==========================================================
 
 /*추가*/
+
+CREATE OR REPLACE PROCEDURE pInsertHoliday (
+    pyear in number,
+    pmonth in number,
+    pday in number
+)
+is
+    vcount NUMBER;
+    vholiday_date date;
+    vholiday_name varchar(50);
+BEGIN
+
+    vholiday_date := TO_DATE(pyear || '-' || pmonth || '-' || pday, 'YYYY-MM-DD');
+
+    SELECT COUNT(*) INTO vcount 
+    FROM holiday 
+    WHERE holidaydate = vholiday_date; 
+    
+    select holidayname into vholiday_name
+    from holiday
+    where holidaydate = vholiday_date;
+
+    -- 날짜가 존재하면 예외 처리
+    IF vcount > 0 THEN
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') ||' : 이날은 '|| vholiday_name||'입니다! 날짜를 올바르게 입력해주세요.');
+    ELSE
+        INSERT INTO holiday VALUES (holiday_seq.NEXTVAL, TO_DATE('2024-07-15', 'YYYY-MM-DD'), '학원휴일');
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') ||' : 휴일이 정상적으로 추가되었습니다.');
+    END IF;
+END pInsertHoliday;
+/
+
+-- 호출하기 매개변수 : 년,월,일
 begin
-    insert into holiday values (holiday_seq.nextval,'2024-07-15','학원휴일');
+    pInsertHoliday(2024,8,15);
 end;
 /
 
+
+
+
+
+
+
+
+
+
+
 /*수정*/
+CREATE OR REPLACE PROCEDURE pUpdateHoliday (
+    pyear in number,
+    pmonth in number,
+    pday in number,
+    pholiday_name in varchar2
+)
+is
+    vcount NUMBER;
+    vholiday_date date;
+BEGIN
+
+    vholiday_date := TO_DATE(pyear || '-' || pmonth || '-' || pday, 'YYYY-MM-DD');
+
+    SELECT COUNT(*) INTO vcount 
+    FROM holiday 
+    WHERE holidaydate = vholiday_date; 
+
+    -- 날짜가 존재하면 수정
+    IF vcount > 0 THEN
+        UPDATE holiday 
+        SET holidayname = pholiday_name
+        WHERE holidaydate = vholiday_date;
+        
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || ' 휴일명이 "' || pholiday_name || '"으로 변경되었습니다.');
+    
+    ELSE
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || ' 해당 날짜의 휴일 정보가 없습니다!');
+    END IF;
+END pUpdateHoliday;
+/
+
+-- 호출하기 매개변수 : 년,월,일,공휴일명
 begin
-    update holiday set holidayname = '쉬는날' where holidayseq=16;
+    pUpdateHoliday(2024,7,15,'학원 쉬는날');
 end;
 /
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*삭제*/
+CREATE OR REPLACE PROCEDURE pDeleteHoliday(
+    pyear in number,
+    pmonth in number,
+    pday in number
+) IS
+    vholiday_date date;
+    vcount NUMBER;
 BEGIN
-    delete from holiday where holidayseq = 21;
-END;
+
+    vholiday_date := TO_DATE(pyear || '-' || pmonth || '-' || pday, 'YYYY-MM-DD');
+    
+    SELECT COUNT(*) INTO vcount 
+    FROM holiday 
+    WHERE holidaydate = vholiday_date; 
+    
+    
+    -- 날짜가 존재하면 삭제
+    IF vcount > 0 THEN
+        delete from holiday 
+        WHERE holidaydate = vholiday_date;
+        
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || '"의 휴일이 삭제되었습니다.');
+    
+    ELSE
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(vholiday_date, 'YYYY-MM-DD') || ' 해당 날짜의 휴일 정보가 없습니다!');
+    END IF;
+END pDeleteHoliday;
 /
+
+-- 호출하기 매개변수 : 년,월,일
+begin
+    pDeleteHoliday(2024,7,14);
+end;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--==========================================================
+/*  학생이 보유한 자격증 view, pl/sql  */
+--==========================================================
+-- view
+CREATE OR REPLACE VIEW vwstudent_certifications AS
+select 
+    s.studentName as "학생 이름", 
+    c.crtfName as "보유한 자격증"
+from studentCrtf sc 
+inner join crtf c on sc.crtfSeq = c.crtfSeq
+inner join student s on s.studentSeq = sc.studentSeq;
+
+SELECT * FROM vwstudent_certifications;
+
+
+--pl/sql
+CREATE OR REPLACE PROCEDURE pstudent_certifications IS
+    -- 변수 선언
+    vStudentName student.studentName%TYPE;
+    vCrtfName crtf.crtfName%TYPE;
+
+    -- 커서 선언
+    CURSOR student_cursor IS
+        SELECT 
+            s.studentName AS studentName, 
+            c.crtfName AS crtfName
+        FROM studentCrtf sc
+        INNER JOIN crtf c ON sc.crtfSeq = c.crtfSeq
+        INNER JOIN student s ON s.studentSeq = sc.studentSeq;
+BEGIN
+    dbms_output.put_line('====================================================================');
+    dbms_output.put_line('              학생 전체 목록과 보유한 자격증');
+    dbms_output.put_line('====================================================================');
+    
+
+    OPEN student_cursor;
+
+    -- 커서에서 데이터 하나씩 가져오기
+    LOOP
+        FETCH student_cursor INTO vStudentName, vCrtfName;
+
+        -- 커서 끝에 도달하면 종료
+        EXIT WHEN student_cursor%NOTFOUND;
+
+        -- 학생 이름과 자격증 출력
+        DBMS_OUTPUT.PUT_LINE('학생 이름: ' || vStudentName || ', 보유한 자격증: ' || vCrtfName);
+    END LOOP;
+
+    -- 커서 닫기
+    CLOSE student_cursor;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- 오류 발생 시 예외 처리
+        DBMS_OUTPUT.PUT_LINE('오류 발생: ' || SQLERRM);
+END pstudent_certifications;
+/
+
+
+
+
+
+
+-- 호출하기, 매개변수 없음
+begin
+    pstudent_certifications();
+end;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+--==========================================================
+/*  회사 정보 view, pl/sql  */
+--==========================================================
+--view
+create or replace view vCompanyInfo
+as
+select 
+    e.enterName as "회사명" , 
+    e.enterBuseo as "업무내용", 
+    t.techName as "사용하는 주요 기술"
+from project p
+inner join enter e on e.techSeq = p.techSeq
+inner join tech t on e.techSeq = t.techSeq
+inner join team te on te.teamSeq = p.teamSeq
+inner join student s on s.studentSeq = te.studentSeq
+inner join studentCrtf sc on sc.studentSeq = s.studentSeq
+inner join crtf c on c.crtfSeq = sc.crtfSeq
+where s.studentname = '홍성준';
+
+
+
+SELECT * FROM vCompanyInfo;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -67,7 +326,7 @@ IS
         WHERE s.studentseq = pstudentNum;
 
 BEGIN
-    -- 1. 학생 존재 여부 및 비밀번호 확인
+    -- 1. 학생 존재 확인, 및 비밀번호 확인
     SELECT COUNT(*) INTO vcount
     FROM student 
     WHERE studentseq = pstudentNum AND studentpw = pstudentPW;
@@ -106,11 +365,11 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('로그인 실패: 학번 또는 비밀번호가 틀렸습니다.');
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('오류 발생!');
-END;
+END pStudentLogin;
 /
 
 
--- 호출문의 매개변수 : 학생 번호, 학생 비밀번호
+-- 호출문의 매개변수 : 학생 번호
 BEGIN
     pStudentLogin(1,2345678);
 END;
@@ -122,123 +381,75 @@ END;
 
 
 
-
+set serveroutput on ;
 
 
 --==========================================================
 /* D-02 교육생 개인성적정보 확인기능 */
 --==========================================================
-CREATE OR REPLACE PROCEDURE pStudentScore(
-    pteacherNum IN teacher.teacherseq%TYPE,
-    pstudentNum IN student.studentseq%TYPE,
-    pprocessNum IN process.processseq%TYPE
-)
-IS
 
-    CURSOR cur_score IS
-        SELECT DISTINCT
-            pc.subjectseq AS "과목 번호",
-            s.subjectname AS "과목 이름",
-            pc.prcsubjectsdate AS "과목 시작 날짜",
-            pc.prcsubjectedate AS "과목 종료 날짜",
-            b.bookname AS "교재명",
-            t.teachername AS "교사명",
-            sa.attendallot AS "출석 배점",
-            sa.writingallot AS "필기 배점",
-            sa.realallot AS "실기 배점",
-            score.attendancescore AS "출석 점수",
-            score.writingscore AS "필기 점수",
-            score.realscore AS "실기 점수",
-            score.totalscore AS "총 점수",
-            test.testtype AS "시험 종류",
-            test.testdate AS "시험 날짜",
-            test.testcontext AS "시험 문제"
-        FROM prcsubject pc
-            INNER JOIN process p ON p.processseq = pc.processseq
-            INNER JOIN subject s ON s.subjectseq = pc.subjectseq
-            INNER JOIN sbjectBook sb ON sb.subjectseq = pc.subjectseq
-            INNER JOIN book b ON b.bookseq = sb.bookseq
-            INNER JOIN teacher t ON t.teacherseq = p.teacherseq
-            INNER JOIN scoreallot sa ON sa.prcsubjectseq = pc.prcsubjectseq 
-            INNER JOIN studentcls scl ON scl.processseq = p.processseq
-            INNER JOIN score ON scl.studentseq = score.studentseq
-            LEFT JOIN test ON test.subjectseq = pc.subjectseq
-        WHERE t.teacherseq = pteacherNum 
-          AND p.processseq = pprocessNum 
-          AND scl.studentseq = pstudentNum
-          AND test.testdate = (
-              SELECT MIN(testdate) 
-              FROM test t2 
-              WHERE t2.subjectseq = test.subjectseq
-          )
-        ORDER BY pc.prcsubjectsdate;
-
-    v_subjectseq subject.subjectseq%TYPE;
-    v_subjectname subject.subjectname%TYPE;
-    v_prcsubjectsdate prcsubject.prcsubjectsdate%TYPE;
-    v_prcsubjectedate prcsubject.prcsubjectedate%TYPE;
-    v_bookname book.bookname%TYPE;
-    v_teachername teacher.teachername%TYPE;
-    v_attendallot scoreallot.attendallot%TYPE;
-    v_writingallot scoreallot.writingallot%TYPE;
-    v_realallot scoreallot.realallot%TYPE;
-    v_attendancescore score.attendancescore%TYPE;
-    v_writingscore score.writingscore%TYPE;
-    v_realscore score.realscore%TYPE;
-    v_totalscore score.totalscore%TYPE;
-    v_testtype test.testtype%TYPE;
-    v_testdate test.testdate%TYPE;
-    v_testcontext test.testcontext%TYPE;
-
+CREATE OR REPLACE PROCEDURE pStudentInfo(
+    p_studentseq IN NUMBER
+) 
+as
 BEGIN
-
-    OPEN cur_score;
-    
-
-    LOOP
-        FETCH cur_score INTO 
-            v_subjectseq, v_subjectname, v_prcsubjectsdate, v_prcsubjectedate, 
-            v_bookname, v_teachername, v_attendallot, v_writingallot, v_realallot, 
-            v_attendancescore, v_writingscore, v_realscore, v_totalscore, 
-            v_testtype, v_testdate, v_testcontext;
-        
-        EXIT WHEN cur_score%NOTFOUND;
-
-        
-        DBMS_OUTPUT.PUT_LINE('과목 번호: ' || v_subjectseq);
-        DBMS_OUTPUT.PUT_LINE('과목 이름: ' || v_subjectname);
-        DBMS_OUTPUT.PUT_LINE('과목 시작 날짜: ' || v_prcsubjectsdate);
-        DBMS_OUTPUT.PUT_LINE('과목 종료 날짜: ' || v_prcsubjectedate);
-        DBMS_OUTPUT.PUT_LINE('교재명: ' || v_bookname);
-        DBMS_OUTPUT.PUT_LINE('교사명: ' || v_teachername);
-        DBMS_OUTPUT.PUT_LINE('출석 배점: ' || v_attendallot);
-        DBMS_OUTPUT.PUT_LINE('필기 배점: ' || v_writingallot);
-        DBMS_OUTPUT.PUT_LINE('실기 배점: ' || v_realallot);
-        DBMS_OUTPUT.PUT_LINE('출석 점수: ' || v_attendancescore);
-        DBMS_OUTPUT.PUT_LINE('필기 점수: ' || v_writingscore);
-        DBMS_OUTPUT.PUT_LINE('실기 점수: ' || v_realscore);
-        DBMS_OUTPUT.PUT_LINE('총 점수: ' || v_totalscore);
-        DBMS_OUTPUT.PUT_LINE('시험 종류: ' || v_testtype);
-        DBMS_OUTPUT.PUT_LINE('시험 날짜: ' || v_testdate);
-        DBMS_OUTPUT.PUT_LINE('시험 문제: ' || v_testcontext);
-        DBMS_OUTPUT.PUT_LINE('-------------------------------------');
+    FOR rec IN (
+        SELECT 
+            pc.subjectseq AS 과목번호,
+            sj.subjectname AS 과목명,
+            pc.prcsubjectsdate || ' ~ ' || pc.prcsubjectedate AS "과목 진행 기간",
+            b.bookname AS 교재명,
+            t.teachername AS 교사명,
+            '(' || sa.attendallot || ', ' || sa.writingallot || ' ,' || sa.realallot || ')' AS "과목별 배점정보(출석, 필기, 실기)",
+            '('||score.attendancescore||', '||score.writingscore  ||' ,'|| score.realscore ||')'  as "과목별 성적정보(출석, 필기, 실기)",
+            score.totalscore AS "과목별 총점수",
+            test.testtype AS 시험유형,
+            test.testdate AS 시험날짜,
+            test.testcontext AS 시험문제
+        FROM prcsubject pc
+            INNER JOIN subject sj ON sj.subjectseq = pc.subjectseq
+            INNER JOIN sbjectbook sb ON sb.subjectseq = pc.subjectseq
+            INNER JOIN book b ON b.bookseq = sb.bookseq
+            INNER JOIN process p ON p.processseq = pc.processseq
+            INNER JOIN teacher t ON t.teacherseq = p.teacherseq
+            INNER JOIN scoreallot sa ON sa.prcsubjectseq = pc.prcsubjectseq
+            INNER JOIN test ON test.teacherseq = t.teacherseq AND pc.subjectseq = test.subjectseq
+            INNER JOIN studentcls scl ON scl.processseq = p.processseq
+            INNER JOIN student st ON st.studentseq = scl.studentseq
+            INNER JOIN score ON score.subjectseq = pc.subjectseq AND score.studentseq = st.studentseq
+        WHERE st.studentseq = p_studentseq 
+            AND pc.processseq = (SELECT processseq FROM studentcls WHERE studentseq = p_studentseq)
+            AND test.teacherseq = (SELECT teacherseq FROM process WHERE processseq = (SELECT processseq FROM studentcls WHERE studentseq = p_studentseq))
+            AND test.testdate BETWEEN p.processsdate AND p.processedate
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('과목번호: ' || rec.과목번호);
+        DBMS_OUTPUT.PUT_LINE('과목명: ' || rec.과목명);
+        DBMS_OUTPUT.PUT_LINE('과목 진행 기간: ' || rec."과목 진행 기간");
+        DBMS_OUTPUT.PUT_LINE('교재명: ' || rec.교재명);
+        DBMS_OUTPUT.PUT_LINE('교사명: ' || rec.교사명);
+        DBMS_OUTPUT.PUT_LINE('과목별 배점정보(출석, 필기, 실기): ' || rec."과목별 배점정보(출석, 필기, 실기)");
+        DBMS_OUTPUT.PUT_LINE('과목별 성적정보(출석, 필기, 실기): ' || rec."과목별 성적정보(출석, 필기, 실기)");
+        DBMS_OUTPUT.PUT_LINE('과목별 총점수: ' || rec."과목별 총점수");
+        DBMS_OUTPUT.PUT_LINE('시험유형: ' || rec.시험유형);
+        DBMS_OUTPUT.PUT_LINE('시험날짜: ' || rec.시험날짜);
+        DBMS_OUTPUT.PUT_LINE('시험문제: ' || rec.시험문제);
+        DBMS_OUTPUT.PUT_LINE('---------------------------------------------------');
     END LOOP;
-
-
-    CLOSE cur_score;
-END pStudentScore;
+END pStudentInfo;
 /
 
 
--- 호출문의 매개변수 : 학생 번호, 학생 비밀번호
+
+-- 호출문의 매개변수 : 학생 번호
 BEGIN
-    pStudentScore(1,1,2);
+    pStudentInfo(27);
 END;
 /
 
 
 
 
+SET SERVEROUTPUT ON;
 
 --==========================================================
 /* D-03 교육생 출결관리 기능 */
@@ -728,7 +939,7 @@ from dual
 
 
 
---2-1. 2번 교사가 강의한 1번 과정의 모든 교육생의 출결
+--1. 2번 교사가 강의한 1번 과정의 모든 교육생의 출결
 CREATE OR REPLACE PROCEDURE pAttendanceTeacherTotal(
     pteacherNum IN teacher.teacherseq%TYPE,
     pprocessNum IN process.processseq%TYPE
@@ -814,7 +1025,7 @@ END;
 
 
 ----------------------------------------------------------------------------------
---2-2. 2번 교사가 강의한 1번 과정의 월 입력시 모든 교육생의 출결
+--2. 2번 교사가 강의한 1번 과정의 월 입력시 모든 교육생의 출결
 CREATE OR REPLACE PROCEDURE pAttendanceTeacherMonth(
     pteacherNum IN teacher.teacherseq%TYPE,
     pprocessNum IN process.processseq%TYPE,
@@ -897,7 +1108,7 @@ END;
 
 
 -------------------------------------------------------------------------------------
---2-3. 2번 교사가 강의한 1번 과정의 날짜 입력시 모든 교육생의 출결
+--3. 2번 교사가 강의한 1번 과정의 날짜 입력시 모든 교육생의 출결
 CREATE OR REPLACE PROCEDURE pAttendanceTeacherDate(
     pteacherNum IN teacher.teacherseq%TYPE,
     pprocessNum IN process.processseq%TYPE,
