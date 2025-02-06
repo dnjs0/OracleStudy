@@ -110,7 +110,7 @@ select
     attendancedate as "오늘 날짜", 
     TO_char(attendancestime, 'HH24:MI') as "등원 시간",
     to_char(attendanceetime, 'HH24:MI') as "하원 시간"
-from attendance where attendancedate=to_char(SYSDATE);
+from attendance where attendancedate=to_char(SYSDATE) AND PROCESSSEQ=1;
 
 select * from vwTodayAttendance;
 
@@ -146,19 +146,16 @@ select
         when h.holidayseq is null and t.attendanceseq is null then '결석'
         else t.attendancest
     end as "상태"
-from vwDate v
+from vwTotalDate v
     left outer join attendance t
         on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
+        AND T.STUDENTSEQ=1
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
-                where t.studentseq=1
                     order by v.regdate asc;
 
-select * from vwStudentDate;
 
-
-
-
+select * from vwStudenttOTALDate;
                        
 /*7월 조회*/
 create or replace view vwMonth
@@ -173,6 +170,8 @@ create or replace view vwStudentMonth
 as
 select 
     v.regdate as "날짜",
+    TO_char(t.attendancestime, 'HH24:MI') as "등원 시간",
+    to_char(t.attendanceetime, 'HH24:MI') as "하원 시간",
     case
         when to_char(v.regdate, 'd') = '1' then '일요일'
         when to_char(v.regdate, 'd') = '7' then '토요일'
@@ -185,6 +184,7 @@ from vwMonth v
         on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
+                    WHERE t.studentseq=1 
                     order by v.regdate asc;              
 
 select * from vwStudentMonth;                    
@@ -203,6 +203,8 @@ create or replace view vwStudentDate
 as
 select
     v.regdate as "날짜",
+    TO_char(t.attendancestime, 'HH24:MI') as "등원 시간",
+    to_char(t.attendanceetime, 'HH24:MI') as "하원 시간",
     case
         when to_char(v.regdate, 'd') = '1' then '일요일'
         when to_char(v.regdate, 'd') = '7' then '토요일'
@@ -215,6 +217,7 @@ from vwDate v
         on to_char(v.regdate, 'yyyy-mm-dd') = to_char(t.attendancedate, 'yyyy-mm-dd')
             left outer join holiday h
                 on to_char(v.regdate, 'yyyy-mm-dd') = to_char(h.holidaydate, 'yyyy-mm-dd')
+                WHERE t.studentseq=1 
                     order by v.regdate asc;   
                     
 select * from vwStudentDate; 
