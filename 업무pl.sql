@@ -445,7 +445,7 @@ BEGIN
     CLOSE cur_attendance;
 END;
 /
-
+set serveroutput on;
 -- 호출문의 매개변수 : 학생 번호
 BEGIN
     pStudentAttendance(1);

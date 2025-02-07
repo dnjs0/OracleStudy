@@ -75,8 +75,8 @@ select * from vwstudentInfo;
 ---------------------------------------------------------------
 
 
-
 select * from attendance where studentseq=1 and attendancedate = sysdate;
+delete from attendance where studentseq=1 and attendancedate = sysdate;
 /* D-03 교육생 출결관리 기능 */
 /* 1번 학생의 등원 추가 */
 INSERT INTO attendance 
