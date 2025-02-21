@@ -5,7 +5,7 @@ BEGIN
 END;
 /
 
-
+select * from tabs;
 
 /* 관리자 */
 CREATE TABLE Admin (
