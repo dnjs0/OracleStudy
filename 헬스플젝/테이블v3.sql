@@ -112,7 +112,7 @@ CREATE TABLE tOpenProgram (
 	open_program_id number primary key, -- PK
     start_date date,                     -- 시작일
     end_date date,                       -- 종료일 
-    total_time number,                   -- 총횟수
+    total_count number,                   -- 총횟수
    
     program_id number,      -- 프로그램(종류)(FK)
     constraint fk_tOpenProgram_tProgram foreign key (program_id) references tProgram(program_id), 
