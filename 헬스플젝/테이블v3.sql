@@ -1,5 +1,4 @@
 
-drop table tAdminister;
 -- 관리자
 create table tAdminister (
     administer_id number primary key,   -- PK
@@ -15,7 +14,7 @@ create table tAdminister (
 select * from tAdminister;
 
 
-drop table tSituationType;
+
 --(인간)상태
 create table tSituationType (
     situation_type_id number primary key,   -- PK
@@ -24,7 +23,7 @@ create table tSituationType (
 select * from tSituationType;
 
 
-drop table tInstroctor;
+
 -- 강사
 create table tInstroctor (
     instroctor_id number primary key,   -- PK
@@ -33,6 +32,8 @@ create table tInstroctor (
     gender varchar2(10) not null,       -- 성별
     tell varchar2(30) not null,         -- 전화번호
     mail varchar2(50) not null,         -- 이메일
+    work_start_time date,  -- 근무시작시간
+    work_end_time date,     -- 근무종료시간
     address varchar2(200) not null,     -- 주소
     
     situation_type_id number,           -- 상태(FK)
@@ -41,7 +42,7 @@ create table tInstroctor (
 select * from tInstroctor;
 
 
-drop table tMember;
+
 -- 회원
 create table tMember (
     member_id number primary key,   -- PK
@@ -58,8 +59,8 @@ create table tMember (
 select * from tMember;
 
 
-drop table tTime;
--- 강습시간
+
+-- 시간
 create table tTime (
     time_id number primary key, -- PK
     start_time varchar2(50) not null      -- 시작시간 
@@ -67,7 +68,7 @@ create table tTime (
 select * from tTime;
 
 
-drop table tPayment;
+
 -- 결제상태유형
 create table tPayment (
     payment_id number primary key,  -- PK
@@ -76,7 +77,7 @@ create table tPayment (
 select * from tPayment;
 
 
-drop table tPaymentType;
+
 -- 납부유형
 create table tPaymentType (
     payment_type_id number primary key, -- PK
@@ -85,7 +86,7 @@ create table tPaymentType (
 select * from tPaymentType;
 
 
-drop table tDay;
+
 -- 요일
 create table tDay(
     day_id number primary key,  -- PK
@@ -94,7 +95,7 @@ create table tDay(
 select * from tDay;
 
 
-drop table tProgram;
+
 -- 프로그램(종류)
 create table tProgram (
     program_id number primary key,  -- PK
@@ -106,7 +107,7 @@ create table tProgram (
 select * from tProgram;
 
 
-drop table tOpenProgram;
+
 -- 프로그램(개설) 
 CREATE TABLE tOpenProgram (
 	open_program_id number primary key, -- PK
@@ -124,7 +125,7 @@ CREATE TABLE tOpenProgram (
 select * from tOpenProgram;
 
 
-drop table tProgramRegistration;
+
 -- 프로그램(등록)
 create table tProgramRegistration (
     program_registration number primary key,    -- PK
@@ -142,7 +143,7 @@ create table tProgramRegistration (
 select * from tProgramRegistration;
 
 
-drop table tDayType;
+
 -- 강습요일
 create table tDayType (
     lesson_day_id number primary key,   -- PK
@@ -158,7 +159,7 @@ select * from tDayType;
 -- +추가 
 
 
-drop table tLocker;
+
 -- 락커
 create table tLocker (
     locker_id number primary key,   -- PK
@@ -169,7 +170,7 @@ create table tLocker (
 select * from tLocker;
 
 
-drop table tLokerReistration;
+
 -- 락커등록
 create table tLokerReistration (
     locker_reistration_id number primary key,   -- PK
@@ -184,20 +185,22 @@ create table tLokerReistration (
 select * from tLokerReistration;
 
 
-drop table tMemberAttendance;
+
 -- 회원 출석
 create table tMemberAttendance (
     member_attendance_id number primary key,    -- PK
-    day_date varchar2(50),                          -- 날짜
-    position date,                              -- 입장                                       
+    day_date date,                          -- 날짜                                     
     
     member_id number,   -- 회원(FK)
-    constraint fk_tMemberAttendance_tMember foreign key (member_id) references tMember(member_id)
+    constraint fk_tMemberAttendance_tMember foreign key (member_id) references tMember(member_id),
+    program_registration NUMBER, -- 프로그램 등록(FK)
+    CONSTRAINT fk_tMemberAttendance_tProgramRegistration FOREIGN KEY (program_registration) 
+        REFERENCES tProgramRegistration(program_registration)
 );
 select * from tMemberAttendance;
 
 
-drop table tCommute;
+
 -- 강사 출퇴근
 create table tCommute (
     commute_id number primary key,      -- PK
@@ -209,5 +212,5 @@ create table tCommute (
     instroctor_id number,   -- 강사(FK)
     constraint fk_tCommute_tInstroctor foreign key (instroctor_id) references tInstroctor(instroctor_id)
 );
-select * from tCommute;
+
 
