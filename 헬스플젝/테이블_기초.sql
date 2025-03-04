@@ -8,6 +8,8 @@ END;
 select * from tabs;
 show user;
 
+ALTER USER cine21 DEFAULT TABLESPACE USERS QUOTA UNLIMITED ON USERS;
+
 
 -- 이름pk, 이름, 성별, 프로그램 이름, 시작일, 종료일 view
 select m.member_id, m.name,m.gender, p.title, op.start_date, op.end_date
