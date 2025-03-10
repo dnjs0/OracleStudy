@@ -173,3 +173,25 @@ SELECT * FROM TABS; --대소문자를 구별하지 않는다.
 select * from tabs;
 
 select * from tabs where table_name = 'JOBS';
+
+
+
+-- 새 계정 생성
+
+--확인하기
+/*
+1.serveice.msc
+- OracleService XXE
+- OrecleDraDB21Home1TNSListener
+
+*/
+
+
+show user; --USER이(가) "SYSTEM"입니다.
+
+
+ alter session set "_ORACLE_SCRIPT"=true;
+create user server identified by java1234;
+grant connect, resource, dba to server;
+alter user server default tablespace users;
+-- 새접속 -> 이름: localhost.server, 비번: java1234
