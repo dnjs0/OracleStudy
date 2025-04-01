@@ -23,7 +23,7 @@ create user c##project identified by java1234;
 alter session set "_ORACLE_SCRIPT"=true;
 
 --c## 안적어도 생성 됨
-create user project identified by java1234;
+create user server identified by java1234;
 
 -- hong0 삭제
 drop user c##project;
@@ -33,11 +33,11 @@ create user hong identified by java1234;
 
 
 
-grant connect to project;
+grant connect to server;
 
 --권한부여하기
-grant connect, resource, dba to project;
-grant create table to project;
+grant connect, resource, dba to server;
+grant create table to server;
 
 show user;
 
